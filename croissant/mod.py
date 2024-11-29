@@ -11,14 +11,14 @@ class Mod:
 		self.name = mod_info["name"]
 		self.version = mod_info["version"]
 		self.description = mod_info["description"]
-		self.all_scripts = []
+		self.dependency_id = mod_info["dependency_id"]
+		self.dependency_name = mod_info["dependency_name"]
 
-		Mod.find_scripts(self)
-
-	def find_scripts(self):
-		for root, dirs, file in os.walk('mods'):
+	def call_ready(self):
+		for _, _, file in os.walk('mods'):
 			for file in file:
-				if file.endswith(".py"):
-					self.all_scripts.append(file)
 				if file == "main.py":
-					exec(open(f"mods/{self.folder}/{file}").read())
+					try:
+						exec(open(f"mods/{self.folder}/{file}").read())
+					except:
+						print(f"\033[1m[Croissant]\033[0m ERROR: {self.folder} main.py cannot be executed")

@@ -26,7 +26,7 @@ import time
 from importlib.util import find_spec
 
 from croissant.croissant import Croissant as CR
-#CR.add_hook(Cat.init_generate_cat, Croissant.TestFunctiontwo, False, None)
+
 sys.setprofile(CR.call_catcher)
 threading.setprofile(CR.call_catcher)
 
