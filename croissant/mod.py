@@ -29,5 +29,5 @@ class Mod:
 
 						return None
 				elif file == "settings.json":
-					with open(f"mods/{self.folder}/settings.json", 'r') as read_file:
+					with open(f"mods/{self.folder}/{file}", 'r') as read_file:
 						self.settings = ujson.loads(read_file.read())

@@ -25,10 +25,6 @@ import threading
 import time
 from importlib.util import find_spec
 
-from croissant.croissant import Croissant as CR
-
-sys.setprofile(CR.call_catcher)
-threading.setprofile(CR.call_catcher)
 
 if not getattr(sys, "frozen", False):
     requiredModules = [
@@ -174,6 +170,7 @@ from scripts.utility import (
 from scripts.debug_menu import debugmode
 import pygame
 
+from croissant.croissant import Croissant as CR
 
 # import all screens for initialization (Note - must be done after pygame_gui manager is created)
 from scripts.screens.all_screens import AllScreens
@@ -195,6 +192,7 @@ def load_data():
     global finished_loading
 
     CR.load_mods()
+    CR.patch_loaded_modules()
 
     # load in the spritesheets
     sprites.load_all()
