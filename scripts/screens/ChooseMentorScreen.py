@@ -1,34 +1,30 @@
-from typing import Dict
+from typing import Dict, Optional
 
+import i18n
 import pygame.transform
 import pygame_gui.elements
 
 from scripts.cat.cats import Cat
 from scripts.game_structure import image_cache
-from scripts.game_structure.game_essentials import (
-    game,
-)
-from scripts.game_structure.ui_elements import (
-    UIImageButton,
-    UISpriteButton,
-    UISurfaceImageButton,
-)
-from scripts.utility import (
-    get_text_box_theme,
-    ui_scale,
-    ui_scale_dimensions,
-    shorten_text_to_fit,
-)
+from ..ui.elements.sprite_button import UISpriteButton
+from ..ui.elements.image_button import UIImageButton
+from ..ui.elements.surface_image_button import UISurfaceImageButton
+from ..ui.elements.checkbox import UICheckbox
+from ..ui.theme import get_text_box_theme
+from ..events_module.text_adjust import shorten_text_to_fit
+from ..ui.scale import ui_scale, ui_scale_dimensions
 from .Screens import Screens
+from .enums import GameScreen
+from ..game_structure.game.switches import switch_set_value, switch_get_value, Switch
+from ..cat.enums import CatRank
 from ..game_structure.screen_settings import MANAGER
 from ..ui.generate_box import get_box, BoxStyles
 from ..ui.generate_button import get_button_dict, ButtonStyles
-from ..ui.get_arrow import get_arrow
 from ..ui.icon import Icon
 
 
 class ChooseMentorScreen(Screens):
-    selected_mentor = None
+    selected_mentor: Optional[Cat] = None
     current_page = 1
     apprentice_details = {}
     selected_details = {}
@@ -82,10 +78,10 @@ class ChooseMentorScreen(Screens):
                 self.update_buttons()
                 self.update_selected_cat()
             elif event.ui_element == self.back_button:
-                self.change_screen("profile screen")
+                self.change_screen(GameScreen.PROFILE)
             elif event.ui_element == self.next_cat_button:
                 if isinstance(Cat.fetch_cat(self.next_cat), Cat):
-                    game.switches["cat"] = self.next_cat
+                    switch_set_value(Switch.cat, self.next_cat)
                     self.update_apprentice()
                     self.update_cat_list()
                     self.update_selected_cat()
@@ -94,7 +90,7 @@ class ChooseMentorScreen(Screens):
                     print("invalid next cat", self.next_cat)
             elif event.ui_element == self.previous_cat_button:
                 if isinstance(Cat.fetch_cat(self.previous_cat), Cat):
-                    game.switches["cat"] = self.previous_cat
+                    switch_set_value(Switch.cat, self.previous_cat)
                     self.update_apprentice()
                     self.update_cat_list()
                     self.update_selected_cat()
@@ -108,54 +104,54 @@ class ChooseMentorScreen(Screens):
                 self.current_page -= 1
                 self.update_cat_list()
             elif event.ui_element == self.checkboxes["show_no_current_app"]:
-                self.show_only_no_current_app_mentors = (
-                    not self.show_only_no_current_app_mentors
-                )
+                if self.checkboxes["show_no_current_app"].checked:
+                    self.show_only_no_current_app_mentors = False
+                    self.checkboxes["show_no_current_app"].uncheck()
+                else:
+                    self.show_only_no_current_app_mentors = True
+                    self.checkboxes["show_no_current_app"].check()
                 self.update_buttons()
                 self.update_cat_list()
-            elif event.ui_element == self.checkboxes.get("show_no_former_app"):
-                self.show_only_no_former_app_mentors = (
-                    not self.show_only_no_former_app_mentors
-                )
+            elif event.ui_element == self.checkboxes["show_no_former_app"]:
+                if self.checkboxes["show_no_former_app"].checked:
+                    self.show_only_no_former_app_mentors = False
+                    self.checkboxes["show_no_former_app"].uncheck()
+                else:
+                    self.show_only_no_former_app_mentors = True
+                    self.checkboxes["show_no_former_app"].check()
                 self.update_buttons()
                 self.update_cat_list()
 
     def screen_switches(self):
         super().screen_switches()
         self.show_mute_buttons()
-        self.the_cat = Cat.all_cats[game.switches["cat"]]
+        self.the_cat = Cat.all_cats[switch_get_value(Switch.cat)]
         self.mentor = Cat.fetch_cat(self.the_cat.mentor)
 
         self.heading = pygame_gui.elements.UITextBox(
-            "Choose a new mentor for " + str(self.the_cat.name),
+            "screens.choose_mentor.heading",
             ui_scale(pygame.Rect((150, 25), (500, 40))),
             object_id=get_text_box_theme("#text_box_34_horizcenter"),
             manager=MANAGER,
+            text_kwargs={"m_c": self.the_cat},
         )
         self.info = pygame_gui.elements.UITextBox(
-            "If an apprentice is 6 moons old and their mentor is changed, they "
-            "will not be listed as a former apprentice on their old mentor's "
-            "profile. Apprentices without a mentor will have one automatically "
-            "assigned next moon. An apprentice's mentor can have an influence on "
-            "their trait and skill later in life.\nChoose your mentors wisely",
+            "screens.choose_mentor.info",
             ui_scale(pygame.Rect((180, 52), (440, 92))),
             object_id=get_text_box_theme("#text_box_22_horizcenter_spacing_95"),
             manager=MANAGER,
         )
-        if self.mentor is not None:
-            self.current_mentor_text = pygame_gui.elements.UITextBox(
-                f"{self.the_cat.name}'s current mentor is " f"{self.mentor.name}",
-                ui_scale(pygame.Rect((230, 130), (340, 30))),
-                object_id=get_text_box_theme("#text_box_22_horizcenter"),
-                manager=MANAGER,
-            )
-        else:
-            self.current_mentor_text = pygame_gui.elements.UITextBox(
-                f"{self.the_cat.name} does not have a mentor",
-                ui_scale(pygame.Rect((230, 130), (340, 30))),
-                object_id=get_text_box_theme("#text_box_22_horizcenter"),
-                manager=MANAGER,
-            )
+        self.current_mentor_text = pygame_gui.elements.UITextBox(
+            "screens.choose_mentor.current_mentor",
+            ui_scale(pygame.Rect((230, 130), (340, 30))),
+            object_id=get_text_box_theme("#text_box_22_horizcenter"),
+            manager=MANAGER,
+            text_kwargs={
+                "count": 1 if self.mentor is not None else 0,
+                "m_c": self.the_cat,
+                "r_c": self.mentor if self.mentor else None,
+            },
+        )
 
         # Layout Images:
         list_frame = get_box(BoxStyles.ROUNDED_BOX, (650, 226))
@@ -195,7 +191,7 @@ class ChooseMentorScreen(Screens):
 
         self.next_cat_button = UISurfaceImageButton(
             ui_scale(pygame.Rect((622, 25), (153, 30))),
-            "Next Cat " + get_arrow(3, arrow_left=False),
+            "buttons.next_cat",
             get_button_dict(ButtonStyles.SQUOVAL, (153, 30)),
             object_id="@buttonstyles_squoval",
             sound_id="page_flip",
@@ -203,7 +199,7 @@ class ChooseMentorScreen(Screens):
         )
         self.previous_cat_button = UISurfaceImageButton(
             ui_scale(pygame.Rect((25, 25), (153, 30))),
-            get_arrow(2, arrow_left=True) + " Previous Cat",
+            "buttons.previous_cat",
             get_button_dict(ButtonStyles.SQUOVAL, (153, 30)),
             object_id="@buttonstyles_squoval",
             sound_id="page_flip",
@@ -211,31 +207,31 @@ class ChooseMentorScreen(Screens):
         )
         self.back_button = UISurfaceImageButton(
             ui_scale(pygame.Rect((25, 60), (105, 30))),
-            get_arrow(2) + " Back",
+            "buttons.back",
             get_button_dict(ButtonStyles.SQUOVAL, (105, 30)),
             object_id="@buttonstyles_squoval",
             manager=MANAGER,
         )
         self.confirm_mentor = UISurfaceImageButton(
             ui_scale(pygame.Rect((326, 310), (148, 30))),
-            "Confirm Mentor",
+            "screens.choose_mentor.set_mentor",
             get_button_dict(ButtonStyles.SQUOVAL, (148, 30)),
             object_id="@buttonstyles_squoval",
         )
         self.remove_mentor = UISurfaceImageButton(
             ui_scale(pygame.Rect((326, 310), (148, 30))),
-            "Remove Mentor",
+            "screens.choose_mentor.unset_mentor",
             get_button_dict(ButtonStyles.SQUOVAL, (148, 30)),
             object_id="@buttonstyles_squoval",
         )
         self.current_mentor_warning = pygame_gui.elements.UITextBox(
-            "Current mentor selected",
+            "screens.choose_mentor.current_mentor_warning",
             ui_scale(pygame.Rect((300, 335), (200, 30))),
             object_id=get_text_box_theme("#text_box_22_horizcenter_red"),
             manager=MANAGER,
         )
         self.no_mentor_warning = pygame_gui.elements.UITextBox(
-            "<font color=#FF0000>No mentor selected</font>",
+            "screens.choose_mentor.no_mentor_warning",
             ui_scale(pygame.Rect((300, 335), (200, 30))),
             object_id=get_text_box_theme("#text_box_22_horizcenter"),
             manager=MANAGER,
@@ -277,34 +273,32 @@ class ChooseMentorScreen(Screens):
         checkbox_spacing = 50
 
         self.no_current_app_text = pygame_gui.elements.UITextBox(
-            "No current apprentices",
+            "screens.choose_mentor.no_current_apprentices",
             ui_scale(pygame.Rect((checkbox_x - 45, checkbox_y + 10), (100, -1))),
             object_id="#text_box_26_horizcenter",
             container=self.filter_container,
         )
         checkbox_y += checkbox_spacing
-        self.checkboxes["show_no_current_app"] = UIImageButton(
-            ui_scale(pygame.Rect((checkbox_x, checkbox_y + 10), (34, 34))),
-            "",
-            object_id="@unchecked_checkbox",
+        self.checkboxes["show_no_current_app"] = UICheckbox(
+            position=(checkbox_x, checkbox_y + 10),
+            check=self.show_only_no_current_app_mentors,
             container=self.filter_container,
-            tool_tip_text="Only show mentors with no current apprentices",
+            tool_tip_text="screens.choose_mentor.no_current_apprentices_tooltip",
         )
         checkbox_y += checkbox_spacing
 
         self.no_former_app_text = pygame_gui.elements.UITextBox(
-            "No former apprentices",
+            "screens.choose_mentor.no_former_apprentices",
             ui_scale(pygame.Rect((checkbox_x - 45, checkbox_y), (100, -1))),
             object_id="#text_box_26_horizcenter",
             container=self.filter_container,
         )
         checkbox_y += checkbox_spacing
-        self.checkboxes["show_no_former_app"] = UIImageButton(
-            ui_scale(pygame.Rect((checkbox_x, checkbox_y), (34, 34))),
-            "",
-            object_id="@unchecked_checkbox",
+        self.checkboxes["show_no_former_app"] = UICheckbox(
+            position=(checkbox_x, checkbox_y),
+            check=self.show_only_no_former_app_mentors,
             container=self.filter_container,
-            tool_tip_text="Only show mentors who have not had an apprentice",
+            tool_tip_text="screens.choose_mentor.no_former_apprentices_tooltip",
         )
         self.update_apprentice()  # Draws the current apprentice
         self.update_selected_cat()  # Updates the image and details of selected cat
@@ -399,20 +393,23 @@ class ChooseMentorScreen(Screens):
             self.apprentice_details[ele].kill()
         self.apprentice_details = {}
 
-        self.the_cat = Cat.all_cats[game.switches["cat"]]
+        self.the_cat = Cat.all_cats[switch_get_value(Switch.cat)]
         self.current_page = 1
         self.selected_mentor = Cat.fetch_cat(self.the_cat.mentor)
         self.mentor = Cat.fetch_cat(self.the_cat.mentor)
 
-        self.heading.set_text(f"Choose a new mentor for {self.the_cat.name}")
-        if self.the_cat.mentor:
-            self.current_mentor_text.set_text(
-                f"{self.the_cat.name}'s current mentor is {self.mentor.name}"
-            )
-        else:
-            self.current_mentor_text.set_text(
-                f"{self.the_cat.name} does not have a mentor"
-            )
+        self.heading.set_text(
+            "screens.choose_mentor.heading",
+            text_kwargs={"m_c": self.the_cat},
+        )
+        self.current_mentor_text.set_text(
+            "screens.choose_mentor.current_mentor",
+            text_kwargs={
+                "count": 1 if self.mentor is not None else 0,
+                "m_c": self.the_cat,
+                "r_c": self.mentor if self.mentor else None,
+            },
+        )
         self.apprentice_details["apprentice_image"] = pygame_gui.elements.UIImage(
             ui_scale(pygame.Rect((600, 150), (150, 150))),
             pygame.transform.scale(
@@ -421,17 +418,8 @@ class ChooseMentorScreen(Screens):
             manager=MANAGER,
         )
 
-        info = (
-            self.the_cat.status
-            + "\n"
-            + self.the_cat.genderalign
-            + "\n"
-            + self.the_cat.personality.trait
-            + "\n"
-            + self.the_cat.skills.skill_string(short=True)
-        )
         self.apprentice_details["apprentice_info"] = pygame_gui.elements.UITextBox(
-            info,
+            self.the_cat.get_info_block(),
             ui_scale(pygame.Rect((490, 162), (105, 125))),
             object_id="#text_box_22_horizcenter_vertcenter_spacing_95",
             manager=MANAGER,
@@ -452,11 +440,19 @@ class ChooseMentorScreen(Screens):
             self.next_cat,
             self.previous_cat,
         ) = self.the_cat.determine_next_and_previous_cats(
-            status=["apprentice", "medicine cat apprentice", "mediator apprentice"]
+            filter_func=(lambda cat: cat.status.rank.is_any_apprentice_rank())
         )
 
-        self.next_cat_button.disable() if self.next_cat == 0 else self.next_cat_button.enable()
-        self.previous_cat_button.disable() if self.previous_cat == 0 else self.previous_cat_button.enable()
+        (
+            self.next_cat_button.disable()
+            if self.next_cat == 0
+            else self.next_cat_button.enable()
+        )
+        (
+            self.previous_cat_button.disable()
+            if self.previous_cat == 0
+            else self.previous_cat_button.enable()
+        )
 
     def change_mentor(self, new_mentor=None):
         old_mentor = Cat.fetch_cat(self.the_cat.mentor)
@@ -498,14 +494,14 @@ class ChooseMentorScreen(Screens):
             if self.the_cat.ID in new_mentor.former_apprentices:
                 new_mentor.former_apprentices.remove(self.the_cat.ID)
 
-        if self.mentor is not None:
-            self.current_mentor_text.set_text(
-                f"{self.the_cat.name}'s current mentor is {self.mentor.name}"
-            )
-        else:
-            self.current_mentor_text.set_text(
-                f"{self.the_cat.name} does not have a mentor"
-            )
+        self.current_mentor_text.set_text(
+            "screens.choose_mentor.current_mentor",
+            text_kwargs={
+                "count": 1 if self.mentor is not None else 0,
+                "m_c": self.the_cat,
+                "r_c": self.mentor if self.mentor else None,
+            },
+        )
 
     def update_selected_cat(self):
         """Updates the image and information on the currently selected mentor"""
@@ -521,21 +517,15 @@ class ChooseMentorScreen(Screens):
                 manager=MANAGER,
             )
 
-            info = (
-                self.selected_mentor.status
-                + "\n"
-                + self.selected_mentor.genderalign
-                + "\n"
-                + self.selected_mentor.personality.trait
-                + "\n"
-                + self.selected_mentor.skills.skill_string(short=True)
+            info = self.selected_mentor.get_info_block()
+            info += i18n.t(
+                "screens.choose_mentor.former_apps",
+                count=len(self.selected_mentor.former_apprentices),
             )
-            if len(self.selected_mentor.former_apprentices) >= 1:
-                info += (
-                    f"\n{len(self.selected_mentor.former_apprentices)} former app(s)"
-                )
-            if len(self.selected_mentor.apprentice) >= 1:
-                info += f"\n{len(self.selected_mentor.apprentice)} current app(s)"
+            info += i18n.t(
+                "screens.choose_mentor.current_apps",
+                count=len(self.selected_mentor.apprentice),
+            )
             self.selected_details["selected_info"] = pygame_gui.elements.UITextBox(
                 info,
                 ui_scale(pygame.Rect((210, 162), (105, 125))),
@@ -554,7 +544,7 @@ class ChooseMentorScreen(Screens):
 
     def update_cat_list(self):
         """Updates the cat sprite buttons."""
-        valid_mentors = self.chunks(self.get_valid_mentors(), 24)
+        valid_mentors = self.get_list_chunks(self.get_valid_mentors(), 24)
 
         # clamp current page to a valid page number
         self.current_page = max(1, min(self.current_page, len(valid_mentors)))
@@ -621,55 +611,29 @@ class ChooseMentorScreen(Screens):
             self.current_mentor_warning.hide()
             self.no_mentor_warning.hide()
 
-        # Update checkboxes
-        checkboxes = [
-            (
-                "show_no_current_app",
-                self.checkboxes["show_no_current_app"],
-                self.show_only_no_current_app_mentors,
-            ),
-            (
-                "show_no_former_app",
-                self.checkboxes["show_no_former_app"],
-                self.show_only_no_former_app_mentors,
-            ),
-        ]
-        for name, checkbox, is_checked in checkboxes:
-            checkbox.kill()
-            theme = "@checked_checkbox" if is_checked else "@unchecked_checkbox"
-            self.checkboxes[name] = UIImageButton(
-                relative_rect=checkbox.relative_rect,
-                text="",
-                object_id=theme,
-                container=self.filter_container,
-                tool_tip_text=checkbox.tool_tip_text,
-            )
-
     def get_valid_mentors(self):
         potential_warrior_mentors = [
             cat
             for cat in Cat.all_cats_list
-            if not (cat.dead or cat.outside)
-            and cat.status in ["warrior", "deputy", "leader"]
+            if cat.status.alive_in_player_clan
+            and cat.status.rank.is_any_adult_warrior_like_rank()
         ]
         valid_warrior_mentors = []
-        invalid_warrior_mentors = []
         potential_medcat_mentors = [
             cat
             for cat in Cat.all_cats_list
-            if not (cat.dead or cat.outside) and cat.status == "medicine cat"
+            if cat.status.alive_in_player_clan
+            and cat.status.rank == CatRank.MEDICINE_CAT
         ]
         valid_medcat_mentors = []
-        invalid_medcat_mentors = []
         potential_mediator_mentors = [
             cat
             for cat in Cat.all_cats_list
-            if not (cat.dead or cat.outside) and cat.status == "mediator"
+            if cat.status.alive_in_player_clan and cat.status.rank == CatRank.MEDIATOR
         ]
         valid_mediator_mentors = []
-        invalid_mediator_mentors = []
 
-        if self.the_cat.status == "apprentice":
+        if self.the_cat.status.rank == CatRank.APPRENTICE:
             for cat in potential_warrior_mentors:
                 # Assume cat is valid initially
                 is_valid = True
@@ -691,7 +655,7 @@ class ChooseMentorScreen(Screens):
 
             return valid_warrior_mentors
 
-        elif self.the_cat.status == "medicine cat apprentice":
+        elif self.the_cat.status.rank == CatRank.MEDICINE_APPRENTICE:
             for cat in potential_medcat_mentors:
                 is_valid = True
 
@@ -709,7 +673,7 @@ class ChooseMentorScreen(Screens):
 
             return valid_medcat_mentors
 
-        elif self.the_cat.status == "mediator apprentice":
+        elif self.the_cat.status.rank == CatRank.MEDIATOR_APPRENTICE:
             for cat in potential_mediator_mentors:
                 # Assume cat is valid initially
                 is_valid = True
@@ -732,6 +696,3 @@ class ChooseMentorScreen(Screens):
     def on_use(self):
         # Due to a bug in pygame, any image with buttons over it must be blitted
         super().on_use()
-
-    def chunks(self, L, n):
-        return [L[x : x + n] for x in range(0, len(L), n)]

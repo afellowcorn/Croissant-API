@@ -181,12 +181,13 @@ class Croissant:
 		
 # 		cls._patched_modules.add(module.__name__)
 	
-# 	@classmethod
-# 	def patch_loaded_modules(cls) -> None:
-# 		"""
-# 		Patch all currently loaded modules in sys.modules.
-# 		This allows patching modules that were imported before the patch was defined.
-# 		"""
+	@classmethod
+	def patch_loaded_modules(cls) -> None:
+		"""
+		Patch all currently loaded modules in sys.modules.
+		This allows patching modules that were imported before the patch was defined.
+		"""
+		pass
 # 		for module_name, module in list(sys.modules.items()):
 # 			cls._patch_module(module)
 	

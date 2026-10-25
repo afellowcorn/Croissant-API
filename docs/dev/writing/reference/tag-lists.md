@@ -1,0 +1,595 @@
+
+# Tag Lists
+Our events generally require writers to "tag" certain attributes.  These "tags" are fairly universal across all events, so the lists are held here to serve as quick reference.
+
+## Exclusionary Tags
+Some tags can be made exclusionary by prefixing them with `-`. For example:
+```json
+"trait": ["-calm"]
+```
+This would allow any cat with a trait that *isn't* `calm`.
+
+As this is allowed in some but *not all* tags, parameters that allow exclusionary tags will be linked to this section. If a parameter *doesn't* link here, then exclusionary tags are not allowed.
+
+!!! caution
+    For most parameters, there's no use in including both exclusionary and non-exclusionary values. Such as in our example, where we exclude `calm`. All other traits are automatically available, since they aren't `calm`, so we don't need to tag any non-exclusionary values. If we were to use two tags like this: `"trait": ["-calm", "arrogant"]` to specify that `arrogant` is required and `calm` is disqualifying, then we might as well just remove `-calm`. The `arrogant` tag on its own will automatically disqualify `calm` cats.
+
+    Where you can expect to utilize both types of values are in parameters with more intermixed tagging. For example, relationship constraints. Here, we may wish to specify that a pair of cats must NOT be child/parent as well as have the `dislikes` tier. As such we would tag: `["-child/parent", "dislikes"]`. This mixes exclusionary and non-exclusionary in a logical manner. 
+
+
+### Locations
+>This controls the biome and camp the event appears in. If the event can appear in any location, use "any".  If you would like the event to occur in specific biomes, but do not want to restrict it to certain camps, then add the plain biome names.  If you would like the event to occur in specific camps, you can specify the camps by extending the biome name accordingly: `"biome:{camp1_camp2_camp3}"`.  In practice, this may look like the following examples: `"mountainous:camp1"`, `"beach:camp2_camp4"`, `"plains:camp1_camp2_camp3"`.  You can utilize [exclusionary tags](tag-lists.md#exclusionary-tags).
+
+| string        | use                              |
+|---------------|----------------------------------|
+| "mountainous" | appears in the mountainous biome |
+| "plains"      | appears in the plains biome      |
+| "forest"      | appears in the forest biome      |
+| "beach"       | appears in the beach biome       |
+| "wetlands"    | appears in the wetlands biome    |
+| "desert"      | appears in the desert biome      |
+| "any"         | appears in any biome             |
+
+Please have a look at the [full biome differences list](biomes.md) when thinking about writing patrols. 
+
+## General Tags
+These tags are used for more general filtering purposes.
+
+| string        | use                                                                                                                      |
+|---------------|--------------------------------------------------------------------------------------------------------------------------|
+| classic       | event only occurs in classic mode                                                                                        |
+| no_body       | use for death events only, this indicates that the dead body is not retrievable and cannot be referenced in grief events |
+| clan_wide     | if this is a murder reveal, use this tag to denote this event as informing the ENTIRE Clan of the murder.                |
+| romance       | marks event as being between two cats who are allowed romantic relations                                                 |
+| adoption      | marks event as being an adoption                                                                                         |
+| "halloween"   | Used to mark events that should only occur around halloween                                                              |
+| "april_fools" | Used to mark events that should only occur on april fools                                                                |
+| "new_years"   | Used to mark events that should only occur on new years.                                                                 |
+
+> **Tags To Indicate Present Statuses** - Sometimes you may want to indicate in event text that other cats of a certain status as present in addition to m_c and r_c (perhaps m_c and r_c are watching kits play, or discussing the progress of apprentices, or complaining about tending to elders.) These tags can be used to ensure that there are cats of the mentioned status currently living within the Clan, this helps prevent situation where cats are watching nonexistent kits or other such impossibilities. Keep in mind that all of these tags check for the presence of *at least* 2 cats of the indicated status.
+> These can utilize [exclusionary tags](tag-lists.md#exclusionary-tags).
+
+| string            | use                                                                                                                                                            |
+|-------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| clan:{status}     | event only occurs if the clan has at least 2 cats with the given status (do not include curly brackets in tag, tag should look something like: `clan:newborn`) |
+| clan:apps         | event only occurs if the clan has at least one living apprentice, this includes ALL types of apps (medicine, mediator, and warrior)                            |
+| clan:warrior-like | event only occurs if the clan has at least one warrior-like role (leader, warrior or deputy)                                                                   |
+
+You can override the default minimums by including `(min:#)` after the status or status group. For example, `"clan:warrior(min:5)"` would require at least 5 warriors. 
+
+
+> **Tags To Indicate Present Cruel Cards** - Sometimes an event will be incongruous with certain cruel cards, or certain cruel cards may "unlock" new events! For these cases, events can be tagged with the appropriate cards.
+> These can utilize [exclusionary tags](tag-lists.md#exclusionary-tags).
+
+| string           | use                                                                                                                                                                                                                                             |
+|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| card:{card_name} | event only occurs if the save file has the listed card (or, in the case of utilizing an exclusionary tag, *doesn't* have the listed card). Curly brackets are not to be included, a proper tag should look something like `card:pride_and_joy`. |
+
+
+> **Leader Specific Tags** - since leaders can have 9 lives, it's helpful to have tags that indicate how an event is influenced by those lives.
+
+| leader event tag | use                                                                                                                                        |
+|------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| all_lives        | indicates the death event will take all the remaining lives                                                                                |
+| some_lives       | indicates the death event will take multiple lives, but that it will not take *all* lives. The leader will still be alive after the event. |
+| lives_remain     | indicates that the death event can only occur if the leader has multiple lives left. This leader will still be alive after the event.      |
+| high_lives       | this event will only occur if the leader has 7-9 lives left                                                                                |
+| mid_lives        | this event will only occur if the leader has 4-6 lives left                                                                                |
+| low_lives        | this event will only occur if the leader has 1-3 lives left                                                                                |
+
+!!! tip
+    Leader death events that are not tagged with `all_lives` or `some_lives` will take 1 life by default.
+
+> **Patrol Specific Tags**
+> 
+| tag           | use                                                                                                                                     |
+|---------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| "romance"     | Marks the patrol or outcome as influencing romance between some cats.                                                                   |
+                                                                                                                                 |
+| "disaster"    | These patrols are only possible when mass extinction is turned ON. Used to mark patrols where the entire patrol can die or become lost. |                                                                                                                                                           |
+
+
+## Conditions and Scars
+
+=== "Taggable Condition Pools"
+
+    > | **CONDITION POOL NAME** | **CONDITIONS**                                                                                                                                                        | **USAGE**                                                                                                                                                                                                                   |
+    |-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+    | `battle_injury`         | `claw_wound`, `cat_bite`, `mangled_leg`, `mangled_tail`, `torn_pelt`, `torn_ear`                                                                                       | Used for injuries given in battle by other cats                                                                                                                                                                             |
+    | `minor_injury`          | `sprain`, `sore`, `bruises`, `scrapes` , `small_cut`                                                                                                                  | Used for small scrapes and bumps                                                                                                                                                                                            |
+    | `blunt_force_injury`    | `broken_bone`, `broken_back`, `broken_jaw` `head_damage`, `severe_headache`                                                                                           | Something heavy hit the cat!                                                                                                                                                                                                |
+    | `hot_injury`            | `heat_exhaustion`, `heat_stroke`, `dehydrated`                                                                                                                        | The cat got too hot                                                                                                                                                                                                         |
+    | `cold_injury`           | `dangerously_cold`, `frostbite`                                                                                                                                    | The cat got too cold                                                                                                                                                                                                        |
+    | `big_bite_injury`       | `bite_wound`, `broken_bone`, `mangled_leg`, `mangled_tail`                                                                                                            | The cat encountered something large that bit them (like a wolf or bear)                                                                                                                                                     |
+    | `small_bite_injury`     | `bite_wound`, `torn_ear`, `torn_pelt`                                                                                                                                 | The cat encountered something small that bit them (NOT a cat, but a ferret or terrier.) Don't use this for an animal we have a specific wound for, such as rats (`rat_bite`), snakes (`snake_bite`), or birds (`beak_bite`) |
+    | `illness`               | `diarrhea`, `whitecough`, `green_cough`, `tick_fever`, `running_nose`, `stomachache`, `sore_throat`, `yellowcough`, `kittencough`, `redcough`, `carrionplace_disease` | The cat got sick with some sort of illness                                                                                                                                                                                  |                      |
+
+    > If you’d like a patrol to have an condition from one of the condition pools above, use the pool name (i.e. "battle_injury" for injuries from other cats) instead of the condition.  Think we need another pool? Let the senior developers know in the discord developer areas and let's talk.  We can have many pools, there's no limit!
+
+
+===  "Conditions"
+
+     > | Conditions                 | Allowed within events? |
+    |--------------------------|:------------------------:|
+    | `blood_loss`             | :x:                    |
+    | `tick_bites`             | :fontawesome-solid-check:     |
+    | `claw_wound`             | :fontawesome-solid-check:     |
+    | `bite_wound`             | :fontawesome-solid-check:     |
+    | `cat_bite`               | :fontawesome-solid-check:     |
+    | `beak_bite`              | :fontawesome-solid-check:     |
+    | `snake_bite`             | :fontawesome-solid-check:     |
+    | `porcupine_quilled`      | :fontawesome-solid-check:     |
+    | `rat_bite`               | :fontawesome-solid-check:     |
+    | `mangled_leg`            | :fontawesome-solid-check:     |
+    | `mangled_tail`           | :fontawesome-solid-check:     |
+    | `broken_jaw`             | :fontawesome-solid-check:     |
+    | `broken_bone`            | :fontawesome-solid-check:     |
+    | `sore`                   | :fontawesome-solid-check:     |
+    | `phantom_pain`           | :x:                    |
+    | `bruises`                | :fontawesome-solid-check:     |
+    | `scrapes`                | :fontawesome-solid-check:     |
+    | `cracked_pads`           | :fontawesome-solid-check:     |
+    | `small_cut`              | :fontawesome-solid-check:     |
+    | `sprain`                 | :fontawesome-solid-check:     |
+    | `bee_sting`              | :fontawesome-solid-check:     |
+    | `joint_pain`             | :fontawesome-solid-check:     |
+    | `dislocated_joint`       | :fontawesome-solid-check:     |
+    | `torn_pelt`              | :fontawesome-solid-check:     |
+    | `torn_ear`               | :fontawesome-solid-check:     |
+    | `venom_sickness`               | :fontawesome-solid-check:     |
+    | `water_in_lungs`   | :fontawesome-solid-check:     |
+    | `dangerously_cold`              | :fontawesome-solid-check:     |
+    | `frostbite`              | :fontawesome-solid-check:     |
+    | `burn`                   | :fontawesome-solid-check:     |
+    | `severe_burn`            | :fontawesome-solid-check:     |
+    | `shock`                  | :fontawesome-solid-check:     |
+    | `lingering_shock`        | :fontawesome-solid-check:     |
+    | `dehydrated`             | :fontawesome-solid-check:     |
+    | `head_damage`            | :fontawesome-solid-check:     |
+    | `damaged_eyes`           | :fontawesome-solid-check:     |
+    | `broken_back`            | :fontawesome-solid-check:     |
+    | `poisoned`               | :fontawesome-solid-check:     |
+    | `headache`               | :fontawesome-solid-check:     |
+    | `severe_headache`        | :fontawesome-solid-check:     |
+    | `pregnant`               | :x:                    |
+    | `recovering_from_birth`  | :x:                    |
+    | `fleas`                | :fontawesome-solid-check:     |
+    | `tick_fever`                | :fontawesome-solid-check:     |
+    | `seizure`              | :fontawesome-solid-check:     |
+    | `diarrhea`             | :fontawesome-solid-check:     |
+    | `diarrhea_dehydratian`             | :x:     |
+    | `running_nose`         | :fontawesome-solid-check:     |
+    | `kittencough`          | :fontawesome-solid-check:     |
+    | `whitecough`           | :fontawesome-solid-check:     |
+    | `greencough`           | :fontawesome-solid-check:     |
+    | `yellowcough`          | :fontawesome-solid-check:     |
+    | `redcough`             | :fontawesome-solid-check:     |
+    | `infection`            | :x:                    |
+    | `festering_wound`      | :x:                    |
+    | `carrionplace_disease` | :fontawesome-solid-check:     |
+    | `heat_stroke`          | :fontawesome-solid-check:     |
+    | `heat_exhaustion`      | :fontawesome-solid-check:     |
+    | `stomachache`          | :fontawesome-solid-check:     |
+    | `sore_throat`          | :fontawesome-solid-check:     |
+    | `constant_nightmares`  | :fontawesome-solid-check:     |
+    | `grief_stricken`       | :fontawesome-solid-check:                    |
+    | `malnourished`         | :x:                    |
+    | `starving`             | :x:                    |
+    | `amputated_tail`             | :fontawesome-solid-check:                    |
+    | `amputated_leg`             | :fontawesome-solid-check:                    |
+
+===  "Permanent Conditions"
+
+    > !!! important
+        Generally we want to avoid giving a permanent condition to a cat. Instead, you should give them a condition that can lead to permanence (e.g. give 'broken back' instead of 'paralyzed')
+
+    > | CONDITIONS         |
+    |----------------------|
+    | crooked_jaw           |
+    | lost_leg           |
+    | born_without_leg   |
+    | weak_leg             |
+    | twisted_leg          |
+    | lost_tail      |
+    | born_without_tail  |
+    | paralyzed            |
+    | raspy_lungs          |
+    | wasting_disease      |
+    | blind                |
+    | one_bad_eye          |
+    | failing_eyesight     |
+    | partial_hearing_loss |
+    | deaf                 |
+    | constant_joint_pain  |
+    | seizure_prone        |
+    | allergies            |
+    | constantly_dizzy     |
+    | recurring_shock      |
+    | lasting_grief        |
+    | persistent_headaches |
+    | selective_mutism |
+    | damaged_throat |
+    | absent |
+    
+
+=== "Scars"
+
+    >| `ONE`          |
+    |----------------|
+    | `TWO`          |
+    | `THREE`        |
+    | `TAILSCAR`     |
+    | `SNOUT`        |
+    | `CHEEK`        |
+    | `SIDE`         |
+    | `THROAT`       |
+    | `TAILBASE`     |
+    | `BELLY`        |
+    | `LEGBITE`      |
+    | `NECKBITE`     |
+    | `FACE`         |
+    | `MANLEG`       |
+    | `BRIGHTHEART`  |
+    | `MANTAIL`      |
+    | `BRIDGE`       |
+    | `RIGHTBLIND`   |
+    | `LEFTBLIND`    |
+    | `BOTHBLIND`    |
+    | `BEAKCHEEK`    |
+    | `BEAKLOWER`    |
+    | `CATBITE`      |
+    | `RATBITE`      |
+    | `QUILLCHUNK`   |
+    | `QUILLSCRATCH` |
+    | `HINDLEG`      |
+    | `BACK`         |
+    | `QUILLSIDE`    |
+    | `SCRATCHSIDE`  |
+    | `BEAKSIDE`     |
+    | `CATBITETWO`   |
+    | `FOUR`         |
+    | `LEFTEAR`      |
+    | `RIGHTEAR`     |
+    | `NOTAIL`       |
+    | `HALFTAIL`     |
+    | `NOPAW`        |
+    | `NOLEFTEAR`    |
+    | `NORIGHTEAR`   |
+    | `NOEAR`        |
+    | `SNAKE`        |
+    | `TOETRAP`      |
+    | `BURNPAWS`     |
+    | `BURNTAIL`     |
+    | `BURNBELLY`    |
+    | `BURNRUMP`     |
+    | `FROSTFACE`    |
+    | `FROSTTAIL`    |
+    | `FROSTMITT`    |
+    | `FROSTSOCK`    |
+    | `TOE`          |
+    | `SNAKETWO`     |
+
+    > !!! tip
+        If you would like a visual reference for how each scar appears on the sprite, please check the [Scar Visual Guide](https://docs.google.com/spreadsheets/d/18T-VPGo4GJP35ECYnkzqKZThd6t8j7TwN97QspXtXY0/edit#gid=1080597059).
+
+
+## Backstories
+You can use either the backstory pool name, or an individual backstory name.  When using a backstory pool, please be sure to check that all the backstories contained within will have text suitable for your needs.  You can find the backstory text within `resources/dicts/lang/en/cat/backstories.json`.
+
+You can utilize [#exclusionary tags](#exclusionary-tags).
+
+| **BACKSTORY POOL NAMES**     | **BACKSTORIES**                                                                                                                                                                                    |
+|------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `clan_founder_backstories`   | `clan_founder`                                                                                                                                                                                     |
+| `clanborn_backstories`       | `clanborn`                                                                                                                                                                                         |
+| `outsider_roots_backstories` | `outsider_roots1`, `outsider_roots2`                                                                                                                                                               |
+| `half_clan_backstories`      | `halfclan1`, `halfclan2`                                                                                                                                                                           |
+| `loner_backstories`          | `loner1`, `loner2`, `loner3`, `loner4`, `refugee2`, `tragedy_survivor4`, `guided3`, `refugee5`, `wandering_healer2`                                                                                |
+| `rogue_backstories`          | `rogue1`, `rogue2`, `rogue3`, `refugee4`, `tragedy_survivor2`, `guided2`, `refugee5`, `wandering_healer1`                                                                                          |
+| `kittypet_backstories`       | `kittypet1`, `kittypet2`, `kittypet3`, `kittypet4`, `refugee3`, `tragedy_survivor3`, `guided1`, `refugee6`                                                                                         |
+| `former_clancat_backstories` | `otherclan1`, `otherclan2`, `otherclan3`, `ostracized_warrior`, `disgraced1`, `disgraced2`, `disgraced3`, `retired_leader`, `refugee1`, `tragedy_survivor1`, `medicine_cat`, `guided4`, `refugee5` |
+| `healer_backstories`         | `medicine_cat`, `wandering_healer1`, `wandering_healer2`                                                                                                                                           |
+| `orphaned_backstories`       | `orphaned1`, `orphaned2`, `orphaned3`, `orphaned4`, `orphaned5`, `orphaned6`                                                                                                                       |
+| `abandoned_backstories`      | `abandoned1`, `abandoned2`, `abandoned3`, `abandoned4`                                                                                                                                             |
+| `outsider_backstories`       | `outsider1`, `outsider2`, `outsider3`                                                                                                                                                              |
+
+## Age and Status
+
+=== "Ages"
+
+    > * `newborn`
+    * `kitten`
+    * `adolescent`
+    * `young adult`
+    * `adult`
+    * `senior adult`
+    * `senior`
+
+    > You can utilize [#exclusionary tags](#exclusionary-tags).
+
+
+=== "Basic Statuses"
+
+    > * `newborn`
+    * `kitten`
+    * `apprentice`
+    * `mediator apprentice`
+    * `medicine cat apprentice`
+    * `warrior`
+    * `mediator`
+    * `medicine cat`
+    * `deputy`
+    * `leader`
+    * `elder`
+    * `any`
+    * `guide`
+
+    > You can utilize [#exclusionary tags](#exclusionary-tags).
+
+=== "Affiliation Statuses"
+
+    > * `kittypet`
+    * `loner`
+    * `rogue`
+    * `clancat`
+
+!!! important
+    
+    Not all statuses are utilized in all formats, please check the relevant event format guide for information on what statuses are or are not valid.
+
+## Groups
+You can utilize [exclusionary tags](#exclusionary-tags).
+
+| tag                 | use                                                                                                                                      |
+|---------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| `match:{cat}`       | Ensures this cat will match with the given cat. For example, the tag `match:r_c` will require this cat to be in the same group as `r_c`. |
+| `no_group`          | This cat is not part of any group.                                                                                                       |
+| `afterlife`         | This cat must be part of one of the afterlives (StarClan, Unknown Residence, or Dark Forest)                                             |
+| `player_clan`       | This cat must be part of the player_clan                                                                                                 |
+| `other_clan`        | This cat must be part of a non-player clan                                                                                               |
+| `starclan`          | This cat must be part of StarClan                                                                                                        |
+| `unknown_residence` | This cat must be part of the Unknown Residence                                                                                           |
+| `dark_forest`       | This cat must be part of the Dark Forest                                                                                                 |
+
+## Standings
+
+| tag       | meaning                                               |
+|-----------|-------------------------------------------------------|
+| `left`    | cat voluntarily left the group                        |
+| `lost`    | cat became forcibly separated from the group          |
+| `exiled`  | cat was forced out of the group intentionally         |
+
+## Traits and Skills
+You can utilize [#exclusionary tags](#exclusionary-tags). They function the same way as non-exclusionary tags. For example, when you write "SWIMMER,2", a cat must be a good swimmer or above. If you write "<b>-</b>SWIMMER,2" a cat *cannot* be a good swimmer or above.
+
+=== "Skills"
+
+    > !!! note
+        Remember, skills are formatted as `SKILL,#`.  For example, `TEACHER,1` is `good teacher` and `SPEAKER,3` is `eloquent speaker`.
+
+    > !!! note
+        Tier 0 skills are "interest" skills for kits and adolescents.
+        They will show up differently depending on if the cat is an adolescent or a kit. <br /><br />
+        The first string under
+        0 is the name that appears for kits and the second is the one that shows up for adolescents.
+        For example, a kit with `TEACHER,0` will be `good at sharing`, while
+        an adolescent with `TEACHER,0` will be `quick to help`.
+
+    > | **SKILL,**       | **0**                            | **1**                     | **2**                    | **3**                          |
+    |------------------|:----------------------------------:|:---------------------------:|:--------------------------:|:--------------------------------:|
+    | **TEACHER**     | `good at sharing`, `quick to help`                     | `good teacher`           | `great teacher`         | `excellent teacher`           |
+    | **HUNTER**      | `moss-ball hunter`, `fledgeling hunter`                | `good hunter`            | `great hunter`          | `renowned hunter`             |
+    | **FIGHTER**     | `avid play-fighter`, `adept tussler`                   | `strong fighter`         | `formidable fighter`    | `indomitable fighter`         |
+    | **RUNNER**      | `never sits still`, `swift-pawed`                      | `fast runner`            | `incredible runner`     | `fast as the wind`            |
+    | **CLIMBER**     | `constantly climbing`, `good balance`                  | `good climber`           | `great climber`         | `impressive climber`          |
+    | **SWIMMER**     | `splashes in puddles`, `enjoys swimming`               | `good swimmer`           | `talented swimmer`      | `fish-like swimmer`           |
+    | **STEALTH**     | `hide and seek champ`, `light-pawed`                   | `sneaky`                 | `very stealthy`         | `one with shadows`            |
+    | **SPEAKER**     | `chatty`, `well-spoken`                                | `good speaker`           | `great speaker`         | `eloquent speaker`            |
+    | **MEDIATOR**    | `quick to make peace`, `solves arguments`              | `good mediator`          | `great mediator`        | `skilled mediator`            |
+    | **CLEVER**      | `opinionated`, `quick witted`                          | `clever`                 | `very clever`           | `incredibly clever`           |
+    | **INSIGHTFUL**  | `careful listener`, `gives suggestions`                | `helpful insight`        | `valuable insight`      | `trusted advisor`             |
+    | **SENSE**       | `stares intently`, `notices little details`            | `perceptive`             | `sharp senses`          | `uncanny senses`              |
+    | **KIT**         | `good playmate`, `entertains kittens`                  | `good kitsitter`         | `great kitsitter`       | `beloved kitsitter`           |
+    | **STORY**       | `likes make-believe`, `lover of stories`               | `good storyteller`       | `great storyteller`     | `masterful storyteller`       |
+    | **LORE**        | `always asking questions`, `interested in history`     | `learner of lore`        | `lore keeper`           | `lore master`                 |
+    | **CAMP**        | `always tidies up`, `well-organized`                   | `nest weaver`            | `den builder`           | `camp keeper`                 |
+    | **HEALER**      | `picks flowers`, `interested in herbs`                 | `good healer`            | `great healer`          | `fantastic healer`            |
+    | **STAR**        | `likes stargazing`, `curious about StarClan`           | `connection to StarClan` | `deep StarClan bond`    | `unshakable StarClan link`    |
+    | **DARK**        | `watches the shadows`, `curious about the Dark Forest` | `Dark Forest affinity`   | `deep Dark Forest bond` | `unshakable Dark Forest link` |
+    | **OMEN**        | `notices oddities`, `looks for signs`                  | `omen seeker`            | `omen sense`            | `omen sight`                  |
+    | **DREAM**       | `vivid dreamer`, `sleep-talker`                        | `strange dreamer`        | `dream walker`          | `dream shaper`                |
+    | **CLAIRVOYANT** | `swayed by feelings`, `oddly insightful`               | `somewhat clairvoyant`   | `fairly clairvoyant`    | `incredibly clairvoyant`      |
+    | **PROPHET**     | `likes riddles`, `studies prophecies`                  | `prophecy seeker`        | `prophecy interpreter`  | `prophet`                     |
+    | **GHOST**       | `morbid curiosity`, `notices wisps`                    | `ghost sense`            | `ghost sight`           | `ghost speaker`               |
+
+=== "Traits"
+
+    > !!! note
+        See the [trait dictionary](trait-dictionary.md) for further information on each trait and the desired "feel" of the personality.
+    >
+    >  * `troublesome`
+    * `lonesome`
+    * `fierce`
+    * `bloodthirsty`
+    * `cold`
+    * `childish`
+    * `playful`
+    * `charismatic`
+    * `bold`
+    * `daring`
+    * `nervous`
+    * `righteous`
+    * `insecure`
+    * `strict`
+    * `compassionate`
+    * `thoughtful`
+    * `ambitious`
+    * `confident`
+    * `adventurous`
+    * `calm`
+    * `careful`
+    * `faithful`
+    * `loving`
+    * `loyal`
+    * `responsible`
+    * `shameless`
+    * `strange`
+    * `vengeful`
+    * `wise`
+    * `arrogant`
+    * `competitive`
+    * `grumpy`
+    * `cunning`
+    * `oblivious`
+    * `gloomy`
+    * `sincere`
+    * `flamboyant`
+    * `rebellious`
+
+
+
+## Snippet Lists
+> These abbreviations can be used to insert items from snippet lists into your text. Using an abbr will add 1-3 random items from the given snippet list, formatted as a written list (i.e. `item1, item2, and item3`). 
+> 
+>The following table also displays certain categories within each snippet list that you can call. To call these categories, you can just add the category after the snippet list abbr, like so: `prophecy_list_sight`.  You can even specify multiple categories, like so: `prophecy_list_sight_touch`.  If you do not add a category, then every category will be used. 
+
+> Full snippet lists are found in `resources/dicts/snippet_collections.json`.  Feel free to add more options into these lists!
+
+| Snippet       | Sight                     | Sound                     | Smell                     | Emotion                   | Touch                     | Taste                     |
+|---------------|---------------------------|---------------------------|---------------------------|---------------------------|---------------------------|---------------------------|
+| prophecy_list | :fontawesome-solid-check: | :fontawesome-solid-check: | :fontawesome-solid-check: | :fontawesome-solid-check: | :fontawesome-solid-check: | :x:                       |
+| omen_list     | :fontawesome-solid-check: | :fontawesome-solid-check: | :fontawesome-solid-check: | :fontawesome-solid-check: | :fontawesome-solid-check: | :x:                       |
+| clair_list    | :x:                       | :fontawesome-solid-check: | :fontawesome-solid-check: | :fontawesome-solid-check: | :fontawesome-solid-check: | :fontawesome-solid-check: |
+| dream_list    | :x:                       | :x:                       | :x:                       | :x:                       | :x:                       | :x:                       |
+| story_list    | :x:                       | :x:                       | :x:                       | :x:                       | :x:                       | :x:                       |
+
+
+=== "prophecy_list"
+
+    > Use this for amorphous, dreamy concepts.
+    
+    > | Sense group | Examples                                                                                   |
+    |-------------|--------------------------------------------------------------------------------------------|
+    | sight       | blood pooling on the ground, a bird's feather, and a ghostly pair of eyes                        |
+    | sound       | a kit's mewl, the rushing sound of a river, and a dying promise                                  |
+    | smell       | the smell of the medicine-cat den, the scent of someone long dead, and the scent of another Clan |
+    | emotional   | the excitement of an apprentice, the feeling of flight, and a half-remembered promise            |
+    | touch       | the brush of a pelt against their own, a tail twining with their own, and the warmth of a parent |
+    
+
+=== "omen_list"
+
+    > Use this for more physical ideas: odd and meaningful but still grounded in reality.
+    
+    > | Sense group | Examples                                                                                        |
+    |-------------|-------------------------------------------------------------------------------------------------|
+    | sight       | a five-pointed leaf, a split acorn, and a dew-covered spider's web                                    |
+    | sound       | a whispering on the wind, the sound of a cat no longer there, and the rustle of wind through the grass    |
+    | smell       | the scent of spoiled queen's milk, the scent of a long-dead cat, and pine sap scent strong in the air |
+    | emotional   | a pervasive feeling of dread, the imprint of fangs on skin, and the feeling of a hidden onlooker      |
+    | touch       | the wind whistling past a claw raised in anger, the ache of fatique as eyes close for good, and an endless cold that seeps into their bones                                                                |
+
+
+=== "clair_list"
+
+    > Use this for amorphous, unclear things that already happened/could happen.
+    
+    > | Sense group | Examples                                                                                                |
+    |-------------|---------------------------------------------------------------------------------------------------------|
+    | sound       | the rumble of many paws on the ground, a betrayal on the wind, and distant wails of grief                     |
+    | smell       | the smell of kittypet food, the smell of dirt baked by the sun, and a strange acidic scent                    |
+    | emotional   | blood spilt in battle, the ache of an elder's bones, and oozing corruption                                    |
+    | touch       | deathly still air, tails entwining, and paws heavy with blood                                                 |
+    | taste       | the bitter taste of poppy seeds, the lingering taste of iron on the tongue, and the volatile taste of berries |
+
+
+=== "dream_list"
+
+    > Use this for dreams. These tend to be shorter, one word or phrase ideas.
+
+    > * <i>Examples:</i> faith, excitement, parental pride, wishing on a star
+
+
+=== "story_list"
+
+    > Use this to pull the name of a story, in the vein of Aesop's Fables. Possible stories are automatically adjusted to the player's biome.
+
+    > * <i>Examples:</i> The Cougar's Claws, The Cat Who Became a Porcupine, The Dead's Token
+
+***
+
+## Relationship Tiers
+> These tags are used to indicate what tier of a relationship type cat1 has toward cat2. Basic tags will allow the tagged tier and greater tiers (i.e. tagging `dislike` will allow `dislike`, `hate`, and `loathe`), while appending `_only` to the end of a tag will restrict the constraint to allow just that tier (i.e. tagging `dislike_only` will allow `dislike`). You can use multiple `_only` tags to allow multiple tiers (i.e. [`dislike_only`, `hate_only`] will allow `dislike` and `hate`) and you can always mix and match these as needed (i.e. [`enjoys`, `doubts_only` `considers`] checks for three different types).
+
+|             | Like        | Respect        | Trust         | Comfort        | Romance        |
+|-------------|-------------|----------------|---------------|----------------|----------------|
+| Extreme Neg | `loathe`    | `resents`      | `discredits`  | `runs_from`    | -              |
+| Mid Neg     | `hates`     | `envies`       | `distrusts`   | `fears`        | -              |
+| Low Neg     | `dislikes`  | `begrudges`    | `doubts`      | `avoids`       | -              |
+| Neutral     | `knows_of`  | `acknowledges` | `observes`    | `considers`    | `uninterested` |
+| Low Pos     | `likes`     | `praises`      | `listens_to`  | `relates_to`   | `fancies`      |
+| Mid Pos     | `enjoys`    | `respects`     | `trusts`      | `understands`  | `adores`       |
+| Extreme Pos | `cherishes` | `admires`      | `confides_in` | `knows_deeply` | `loves`        |
+
+
+***
+
+## Interpersonal Relationships
+> These tags are used to indicate a type of Interpersonal relationship involved cats should have. These are meant for use as m_c's relationship with r_c's, or, in the case of patrols, p_l's relationship toward the other cat. 
+
+| string            |                                       | Patrol Use Specifics                   |
+|-------------------|---------------------------------------|----------------------------------------|
+| `siblings`        | cat1 and cat2 are siblings            | all cats are siblings                  |
+| `littermates`     | cat1 and cat2 are littermates         | all cats are littermates               |
+| `mates`           | cat1 and cat2 are mates               | all cats are mates                     |
+| `parent/child`    | cat1 is the parent of cat2            | only for use in 2-cat patrols          |
+| `child/parent`    | cat1 is the child of cat2             | only for use in 2-cat patrols          |
+| `app/mentor`      | cat1 is the apprentice of cat2        | only for use in 2-cat patrols          |
+| `mentor/app`      | cat1 is the mentor of cat2            | only for use in 2-cat patrols          |
+| `past_app/mentor` | cat1 is the former apprentice of cat2 | only for use in 2-cat patrols          |
+| `past_mentor/app` | cat1 is the former mentor of cat2     | only for use in 2-cat patrols          |
+
+
+You can utilize [#exclusionary tags](#exclusionary-tags).
+
+!!! warning
+    Within ShortEvents, these should only be used in m_c's relationship constraints. 
+
+!!! warning
+    Most formats utilizing these tags will be treated as a requirement list rather than a pool of possibilities. If you constrain a patrol to "child/parent", "app/mentor" the relationship between the cats <i>must</i> meet both criteria i.e. a parent who is the mentor to their apprentice child. Refer back to specific documentation of type of writing content you are adding to see if it is an exception to the rule. 
+
+***
+
+## Clan Temperaments
+> These tags are used to indicate what type of Clan can receive an event. Patrols also use them to indicate what sort of patrol can receive an event, which uses the personalities of the cats on the patrol rather than from a Clan.
+
+> Every temperament is a pairing of one tag from each table below, so a Clan or patrol always holds two of them at once. Tagging a single temperament constrains only that half of the pairing.
+
+> Use `"any"` if any temperament is allowed. Not every parameter that links here accepts [exclusionary tags](#exclusionary-tags), so check the parameter itself.
+
+|                 | low aggression | mid aggression | high aggression  |
+|-----------------|----------------|----------------|------------------|
+| **low social**  | cunning        | proud          | bloodthirsty     |
+| **mid social**  | amiable        | stoic          | wary             |
+| **high social** | gracious       | mellow         | logical          |
+
+
+|                 | low stability | mid stability | high stability |
+|-----------------|---------------|---------------|----------------|
+| **low lawful**  | chaotic       | mercurial     | calculating    |
+| **mid lawful**  | eager         | observant     | adaptable      |
+| **high lawful** | decisive      | methodical    | steadfast      |
+
+***
+
+## Accessories
+> Accessory tags can be used to constrain an event/outcome to only occur if a cat has/does not have an accessory type. These options are based on the three accessory categories, rather than a specific location on a cat's body or a specific accessory. 
+
+    > !!! tip 
+    Full lists of the acessories in each category can be found in the following files: collar_sprite_data.json, wild_sprite_data.json, plant_sprite_data.json
+
+|    category     |    description    |                  examples                   |
+|-----------------|-------------------|---------------------------------------------|
+|   **"collar"**  |      collars      |            BOW, PUFFBALL, NYLON             |
+|   **"wild"**    | animal acessories | RED FEATHERS, BLACK CICADA, ROSY MOTH WINGS |
+|   **"plant"**   | plant accessories |        MAPLE LEAF, VINE BRACELET, HERBS     |

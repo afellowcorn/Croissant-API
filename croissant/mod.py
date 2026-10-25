@@ -19,7 +19,7 @@ class Mod:
 		self.settings = {}
 
 	def call_ready(self):
-		for _, _, file in os.walk('mods'):
+		for _, _, file in os.walk(f"mods/{self.folder}"):
 			for file in file:
 				if file == "main.py":
 					try:
