@@ -1,5 +1,7 @@
 import ujson
+from pathlib import Path
 
-def parser():
-	with open(f"mods/{folder}/{file}", 'r') as read_file:
-		settings = ujson.loads(read_file.read())
+def _load_resources(folder) -> None:
+	"""Loads mod resources."""
+	for file in Path(f"mods/{folder}").glob("**/*.json"):
+		print(file)
