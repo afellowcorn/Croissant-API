@@ -79,6 +79,7 @@ class StartScreen(Screens):
                 self.elements["switch_clan"]: GameScreen.SWITCH_CLAN,
                 self.elements["new_clan"]: GameScreen.MAKE_CLAN_CHOOSE_MODE,
                 self.elements["settings"]: GameScreen.SETTINGS,
+                self.elements["mods"]: GameScreen.MODS,
             }
             if element in screens and not self.error_open:
                 self.change_screen(screens[element])
@@ -239,6 +240,14 @@ class StartScreen(Screens):
             object_id="@buttonstyles_mainmenu",
             manager=MANAGER,
             anchors={"top_target": self.elements["settings"]},
+        )
+        self.elements["mods"] = UISurfaceImageButton(
+            ui_scale(pygame.Rect((70, 15), (200, 30))),
+            "buttons.mods",
+            image_dict=get_button_dict(ButtonStyles.MAINMENU, (200, 30)),
+            object_id="@buttonstyles_mainmenu",
+            manager=MANAGER,
+            anchors={"top_target": self.elements["quit"]},
         )
 
         if constants.CONFIG["dev_tools"]:

@@ -6,6 +6,7 @@ class GameScreen(StrEnum):
     # screens access through start screen
     SWITCH_CLAN = "switch_clan_screen"
     SETTINGS = "settings_screen"
+    MODS = "mods_screen"
     EVENT_EDIT = "event_edit_screen"
 
     # make clan screens

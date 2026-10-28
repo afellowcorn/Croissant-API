@@ -53,7 +53,8 @@ controller_manager.init()
 def load_data():
     global finished_loading
 
-    CR.load_mods()
+    if not CR.mod_list:
+        CR.load_mods()
     CR.patch_loaded_modules()
 
     # load audio

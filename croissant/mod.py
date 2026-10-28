@@ -5,9 +5,11 @@ class Mod:
 	def __init__(
         self,
         folder=None,
+        enabled=False,
         mod_info={}
     ):
 		self.folder = folder
+		self.enabled = enabled
 
 		self.mod_id = mod_info["mod_id"]
 		self.name = mod_info["name"]

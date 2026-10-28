@@ -183,3 +183,9 @@ cache/
 download.tmp
 version.ini
 *.xml
+
+# Croissant
+
+croissant/mod_list.json
+croissant/runtime_resources
+mods/**

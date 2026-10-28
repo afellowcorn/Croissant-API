@@ -9,12 +9,13 @@ from importlib.util import spec_from_file_location, module_from_spec
 from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
 
 from croissant.mod import Mod
-from croissant.resources import _load_resources
+from croissant.resources import _load_resources, _save_resources
 
 T = TypeVar('T')
 
 class Croissant:
 	mod_list: Dict[str, Mod] = {}
+	enabled_mods: List = []
 	_temp_resources: Dict[str, Dict] = {}
 	_patches: Dict[str, Dict[str, List[Callable]]] = {
 		'prefix': {},
@@ -28,28 +29,91 @@ class Croissant:
 	@classmethod
 	def load_mods(cls) -> None:
 		"""Creates a Mod class instance for every mod folder."""
+		if not cls.mod_list:
+			cls._load_mod_list()
 
-		for folder in (next(os.walk('mods'))[1]):
-			mod_info = None
+		for folder in os.listdir("mods"):
 			if folder == "template":
 				continue
+
+			mod_info = None
+			enabled = False
+
+			# Handle previous settings
+			if folder in cls.mod_list.keys():
+				enabled = cls.mod_list[folder]
+
+			# temp
+			if folder == "pelt_test":
+				enabled = True
 
 			try:
 				with open(f"mods/{folder}/mod_info.json", 'r') as read_file:
 					mod_info = ujson.loads(read_file.read())
-				Croissant.mod_list.update({mod_info["mod_id"]: Mod(folder, mod_info)})
+				cls.mod_list.update({folder: Mod(folder=folder, enabled=enabled, mod_info=mod_info)})
 
-				Croissant.mod_list[mod_info["mod_id"]].call_ready()
+				if folder not in cls.enabled_mods and enabled:
+					cls.enabled_mods.append(mod_info["mod_id"])
 
 			except:
 				print(f"\033[1m[Croissant]\033[0m ERROR: {folder} does not have a mod_info.json")
 
+		for mod in cls.enabled_mods:
+			if cls.mod_list[mod].enabled:
+				cls.mod_list[mod].call_ready()
+
 		print(f"\033[1m[Croissant]\033[0m Mod loading complete")
+		cls._save_mod_list()
 
 	@classmethod
 	def load_resources(cls, mod_id) -> None:
 		"""Loads mod resources."""
-		_load_resources(mod_id)
+		cls._temp_resources = _load_resources(cls._temp_resources, mod_id)
+
+		cls.save_resources()
+
+	@classmethod
+	def save_resources(cls) -> None:
+		"""Saves resources and clears _temp_resources."""
+		_save_resources(cls._temp_resources)
+		cls._temp_resources.clear()
+
+	@classmethod
+	def _load_mod_list(cls) -> None:
+		"""Loads mod list."""
+		cls.mod_list.clear()
+		cls.enabled_mods.clear()
+		if os.path.exists("croissant/mod_list.json"):
+			with open("croissant/mod_list.json", 'r') as read_file:
+				data = ujson.loads(read_file.read())
+
+				for mod_id in data.keys():
+					cls.mod_list[mod_id] = data[mod_id]
+					if data[mod_id]:
+						cls.enabled_mods.append(mod_id)
+
+	@classmethod
+	def _update_mod_list(cls, mod, enable=True) -> None:
+		if enable:
+			cls.enabled_mods.append(mod)
+		else:
+			cls.enabled_mods.remove(mod)
+		cls.mod_list[mod].enabled = enable
+
+	@classmethod
+	def _save_mod_list(cls) -> None:
+		mods = {}
+
+		for mod in cls.enabled_mods:
+			mods.update({mod: cls.mod_list[mod].enabled})
+
+		for mod in cls.mod_list.keys():
+			if mod not in cls.enabled_mods:
+				mods.update({mod: cls.mod_list[mod].enabled})
+
+		with open("croissant/mod_list.json", 'w') as file:
+			data = ujson.dumps(mods, indent=4)
+			file.write(data)
 
 # 	@classmethod
 # 	def _get_full_name(cls, func: Callable) -> str:

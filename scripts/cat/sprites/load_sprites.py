@@ -5,6 +5,8 @@ from copy import copy
 import pygame
 import ujson
 
+from croissant.resources import open
+
 from scripts.cat.enums import CatGroup
 from scripts.game_structure import constants, image_cache
 from scripts.game_structure.game.settings import game_setting_get
