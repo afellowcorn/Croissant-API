@@ -94,7 +94,7 @@ def rebuild_all_screens():
         GameScreen.MEDIATION: MediationScreen,
         GameScreen.CHANGE_GENDER: ChangeGenderScreen,
         GameScreen.EVENT_EDIT: EventEditScreen,
-        GameScreen.MODS: ModsScreen, 
+        GameScreen.MODS: ModsScreen,
     }
 
     for enum, classobj in enum_to_class.items():

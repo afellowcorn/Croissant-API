@@ -26,7 +26,7 @@ def load_clan_settings():
             + f"/{switch_get_value(Switch.clan_list)[0]}/clan_settings.json",
             "r",
             encoding="utf-8",
-            skip=True
+            skip=True,
         ) as write_file:
             _load_settings = ujson.loads(write_file.read())
 

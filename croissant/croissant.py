@@ -11,250 +11,257 @@ from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
 from croissant.mod import Mod
 from croissant.resources import _load_resources, _save_resources
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 class Croissant:
-	mod_list: Dict[str, Mod] = {}
-	enabled_mods: List = []
-	_temp_resources: Dict[str, Dict] = {}
-	_patches: Dict[str, Dict[str, List[Callable]]] = {
-		'prefix': {},
-		'postfix': {},
-		'replace': {}
-	}
-	_patched_modules = set()
+    mod_list: Dict[str, Mod] = {}
+    enabled_mods: List = []
+    _temp_resources: Dict[str, Dict] = {}
+    _patches: Dict[str, Dict[str, List[Callable]]] = {
+        "prefix": {},
+        "postfix": {},
+        "replace": {},
+    }
+    _patched_modules = set()
 
-	print(f"\033[1m[Croissant]\033[0m Initialized")
+    print(f"\033[1m[Croissant]\033[0m Initialized")
 
-	@classmethod
-	def load_mods(cls) -> None:
-		"""Creates a Mod class instance for every mod folder."""
-		if not cls.mod_list:
-			cls._load_mod_list()
+    @classmethod
+    def load_mods(cls) -> None:
+        """Creates a Mod class instance for every mod folder."""
+        if not cls.mod_list:
+            cls._load_mod_list()
 
-		for folder in os.listdir("mods"):
-			if folder == "template":
-				continue
+        for folder in os.listdir("mods"):
+            if folder == "template":
+                continue
 
-			mod_info = None
-			enabled = False
+            mod_info = None
+            enabled = False
 
-			# Handle previous settings
-			if folder in cls.mod_list.keys():
-				enabled = cls.mod_list[folder]
+            # Handle previous settings
+            if folder in cls.mod_list.keys():
+                enabled = cls.mod_list[folder]
 
-			try:
-				with open(f"mods/{folder}/mod_info.json", 'r') as read_file:
-					mod_info = ujson.loads(read_file.read())
-				cls.mod_list.update({folder: Mod(folder=folder, enabled=enabled, mod_info=mod_info)})
+            try:
+                with open(f"mods/{folder}/mod_info.json", "r") as read_file:
+                    mod_info = ujson.loads(read_file.read())
+                cls.mod_list.update(
+                    {folder: Mod(folder=folder, enabled=enabled, mod_info=mod_info)}
+                )
 
-				if folder not in cls.enabled_mods and enabled:
-					cls.enabled_mods.append(mod_info["mod_id"])
+                if folder not in cls.enabled_mods and enabled:
+                    cls.enabled_mods.append(mod_info["mod_id"])
 
-			except:
-				print(f"\033[1m[Croissant]\033[0m ERROR: {folder} does not have a mod_info.json")
+            except:
+                print(
+                    f"\033[1m[Croissant]\033[0m ERROR: {folder} does not have a mod_info.json"
+                )
 
-		cls.ready_mods()
+        cls.ready_mods()
 
-		print(f"\033[1m[Croissant]\033[0m Mod loading complete")
-		cls._save_mod_list()
+        print(f"\033[1m[Croissant]\033[0m Mod loading complete")
+        cls._save_mod_list()
 
-	@classmethod
-	def ready_mods(cls) -> None:
-		"""Runs enabled mods' main.py."""
-		for mod in cls.enabled_mods:
-			cls.mod_list[mod].call_ready()
+    @classmethod
+    def ready_mods(cls) -> None:
+        """Runs enabled mods' main.py."""
+        for mod in cls.enabled_mods:
+            cls.mod_list[mod].call_ready()
 
-	@classmethod
-	def load_resources(cls, mod_id) -> None:
-		"""Loads mod resources."""
-		cls._temp_resources = _load_resources(cls._temp_resources, mod_id)
+    @classmethod
+    def load_resources(cls, mod_id) -> None:
+        """Loads mod resources."""
+        cls._temp_resources = _load_resources(cls._temp_resources, mod_id)
 
-		cls.save_resources()
+        cls.save_resources()
 
-	@classmethod
-	def save_resources(cls) -> None:
-		"""Saves resources and clears _temp_resources."""
-		_save_resources(cls._temp_resources)
-		cls._temp_resources.clear()
+    @classmethod
+    def save_resources(cls) -> None:
+        """Saves resources and clears _temp_resources."""
+        _save_resources(cls._temp_resources)
+        cls._temp_resources.clear()
 
-	@classmethod
-	def _load_mod_list(cls) -> None:
-		"""Loads mod list."""
-		cls.mod_list.clear()
-		cls.enabled_mods.clear()
-		if os.path.exists("croissant/mod_list.json"):
-			with open("croissant/mod_list.json", 'r') as read_file:
-				data = ujson.loads(read_file.read())
+    @classmethod
+    def _load_mod_list(cls) -> None:
+        """Loads mod list."""
+        cls.mod_list.clear()
+        cls.enabled_mods.clear()
+        if os.path.exists("croissant/mod_list.json"):
+            with open("croissant/mod_list.json", "r") as read_file:
+                data = ujson.loads(read_file.read())
 
-				for mod_id in data.keys():
-					cls.mod_list[mod_id] = data[mod_id]
-					if data[mod_id]:
-						cls.enabled_mods.append(mod_id)
+                for mod_id in data.keys():
+                    cls.mod_list[mod_id] = data[mod_id]
+                    if data[mod_id]:
+                        cls.enabled_mods.append(mod_id)
 
-	@classmethod
-	def _update_mod_list(cls, mod, enable=True) -> None:
-		if enable and mod not in cls.enabled_mods:
-			cls.enabled_mods.append(mod)
-		elif not enable and mod in cls.enabled_mods:
-			cls.enabled_mods.remove(mod)
-		cls.mod_list[mod].enabled = enable
+    @classmethod
+    def _update_mod_list(cls, mod, enable=True) -> None:
+        if enable and mod not in cls.enabled_mods:
+            cls.enabled_mods.append(mod)
+        elif not enable and mod in cls.enabled_mods:
+            cls.enabled_mods.remove(mod)
+        cls.mod_list[mod].enabled = enable
 
-	@classmethod
-	def _save_mod_list(cls) -> None:
-		mods = {}
+    @classmethod
+    def _save_mod_list(cls) -> None:
+        mods = {}
 
-		for mod in cls.enabled_mods:
-			mods.update({mod: cls.mod_list[mod].enabled})
+        for mod in cls.enabled_mods:
+            mods.update({mod: cls.mod_list[mod].enabled})
 
-		for mod in cls.mod_list.keys():
-			if mod not in cls.enabled_mods:
-				mods.update({mod: cls.mod_list[mod].enabled})
+        for mod in cls.mod_list.keys():
+            if mod not in cls.enabled_mods:
+                mods.update({mod: cls.mod_list[mod].enabled})
 
-		with open("croissant/mod_list.json", 'w') as file:
-			data = ujson.dumps(mods, indent=4)
-			file.write(data)
+        with open("croissant/mod_list.json", "w") as file:
+            data = ujson.dumps(mods, indent=4)
+            file.write(data)
 
-# 	@classmethod
-# 	def _get_full_name(cls, func: Callable) -> str:
-# 		"""Get the full name of a function including module."""
-# 		if inspect.ismethod(func):
-# 			# Handle bound methods
-# 			if hasattr(func, '__self__'):
-# 				if inspect.isclass(func.__self__):
-# 					# Class method
-# 					return f"{func.__module__}.{func.__self__.__name__}.{func.__name__}"
-# 				else:
-# 					# Instance method
-# 					return f"{func.__module__}.{func.__self__.__class__.__name__}.{func.__name__}"
-# 		elif inspect.isfunction(func):
-# 			# Handle unbound methods and functions
-# 			if '.' in func.__qualname__:
-# 				# This is likely a method defined in a class
-# 				return f"{func.__module__}.{func.__qualname__}"
-# 			else:
-# 				# This is a regular function
-# 				return f"{func.__module__}.{func.__name__}"
-# 		return f"{func.__module__}.{func.__qualname__}"
+    # 	@classmethod
+    # 	def _get_full_name(cls, func: Callable) -> str:
+    # 		"""Get the full name of a function including module."""
+    # 		if inspect.ismethod(func):
+    # 			# Handle bound methods
+    # 			if hasattr(func, '__self__'):
+    # 				if inspect.isclass(func.__self__):
+    # 					# Class method
+    # 					return f"{func.__module__}.{func.__self__.__name__}.{func.__name__}"
+    # 				else:
+    # 					# Instance method
+    # 					return f"{func.__module__}.{func.__self__.__class__.__name__}.{func.__name__}"
+    # 		elif inspect.isfunction(func):
+    # 			# Handle unbound methods and functions
+    # 			if '.' in func.__qualname__:
+    # 				# This is likely a method defined in a class
+    # 				return f"{func.__module__}.{func.__qualname__}"
+    # 			else:
+    # 				# This is a regular function
+    # 				return f"{func.__module__}.{func.__name__}"
+    # 		return f"{func.__module__}.{func.__qualname__}"
 
-# 	@classmethod
-# 	def _wrap_function(cls, func: Callable[..., T], owner_class=None) -> Callable[..., T]:
-# 		"""Create a wrapper that applies all patches."""
-# 		is_classmethod = isinstance(func, classmethod) or (owner_class and isinstance(getattr(owner_class, func.__name__, None), classmethod))
-# 		is_staticmethod = isinstance(func, staticmethod) or (owner_class and isinstance(getattr(owner_class, func.__name__, None), staticmethod))
-		
-# 		# Get the actual function from classmethod/staticmethod if needed
-# 		if isinstance(func, (classmethod, staticmethod)):
-# 			func = func.__get__(None, owner_class).__func__
-		
-# 		full_name = cls._get_full_name(func)
-		
-# 		@functools.wraps(func)
-# 		def wrapper(*args, **kwargs):
-# 			# Prepare arguments
-# 			if is_classmethod:
-# 				patch_args = (args[0],) + args[1:] if args else (owner_class,)
-# 			else:
-# 				patch_args = args
-			
-# 			# Prefix
-# 			for prefix_patch in cls._patches['prefix'].get(full_name, []):
-# 				prefix_patch(*patch_args, **kwargs)
-			
-# 			# Replace
-# 			if full_name in cls._patches['replace'] and cls._patches['replace'][full_name]:
-# 				result = cls._patches['replace'][full_name][-1](*patch_args, **kwargs)
-# 			else:
-# 				result = func(*args, **kwargs)
-			
-# 			# Postfix
-# 			for postfix_patch in cls._patches['postfix'].get(full_name, []):
-# 				postfix_patch(*patch_args, **kwargs)
-			
-# 			return result
-		
-# 		# Preserve method type
-# 		if is_classmethod:
-# 			return classmethod(wrapper)
-# 		elif is_staticmethod:
-# 			return staticmethod(wrapper)
-		
-# 		return wrapper
+    # 	@classmethod
+    # 	def _wrap_function(cls, func: Callable[..., T], owner_class=None) -> Callable[..., T]:
+    # 		"""Create a wrapper that applies all patches."""
+    # 		is_classmethod = isinstance(func, classmethod) or (owner_class and isinstance(getattr(owner_class, func.__name__, None), classmethod))
+    # 		is_staticmethod = isinstance(func, staticmethod) or (owner_class and isinstance(getattr(owner_class, func.__name__, None), staticmethod))
 
-# 	@classmethod
-# 	def patch(cls, target: Union[str, Callable], patch_type: str = 'replace') -> Callable:
-# 		"""
-# 		Decorator to patch a function.
-		
-# 		Args:
-# 			target: The function to patch or its full name
-# 			patch_type: One of 'prefix', 'postfix', or 'replace'
-# 		"""
-# 		def decorator(patch_func: Callable) -> Callable:
-# 			if isinstance(target, str):
-# 				target_name = target
-# 			else:
-# 				target_name = cls._get_full_name(target)
-			
-# 			if patch_type not in cls._patches:
-# 				raise ValueError(f"Invalid patch type: {patch_type}")
-			
-# 			if target_name not in cls._patches[patch_type]:
-# 				cls._patches[patch_type][target_name] = []
-			
-# 			cls._patches[patch_type][target_name].append(patch_func)
-			
-# 			# Try to patch any already loaded modules that might contain this target
-# 			cls.patch_loaded_modules()
-# 			return patch_func
-		
-# 		return decorator
+    # 		# Get the actual function from classmethod/staticmethod if needed
+    # 		if isinstance(func, (classmethod, staticmethod)):
+    # 			func = func.__get__(None, owner_class).__func__
 
-# 	@classmethod
-# 	def _patch_module(cls, module) -> None:
-# 		"""Apply patches to a single module."""
-# 		# if module is None or module.__name__ in cls._patched_modules:
-# 		# 	return
-			
-# 		for attr_name in dir(module):
-# 			try:
-# 				attr = getattr(module, attr_name)
-# 				if inspect.isclass(attr):
-# 					# Patch class methods
-# 					for method_name, method in inspect.getmembers(attr, predicate=lambda x: inspect.isfunction(x) or inspect.ismethod(x) or isinstance(x, (classmethod, staticmethod))):
-# 						full_name = f"{module.__name__}.{attr.__name__}.{method_name}"
-# 						has_patches = any(
-# 							full_name in patch_dict
-# 							for patch_dict in cls._patches.values()
-# 						)
-# 						if has_patches:
-# 							wrapped = cls._wrap_function(method, owner_class=attr)
-# 							setattr(attr, method_name, wrapped)
-# 				elif callable(attr):
-# 					# Patch regular functions
-# 					full_name = cls._get_full_name(attr)
-# 					has_patches = any(
-# 						full_name in patch_dict
-# 						for patch_dict in cls._patches.values()
-# 					)
-# 					if has_patches:
-# 						wrapped = cls._wrap_function(attr)
-# 						setattr(module, attr_name, wrapped)
-# 			except (AttributeError, TypeError):
-# 				continue
-		
-# 		cls._patched_modules.add(module.__name__)
-	
-	@classmethod
-	def patch_loaded_modules(cls) -> None:
-		"""
-		Patch all currently loaded modules in sys.modules.
-		This allows patching modules that were imported before the patch was defined.
-		"""
-		pass
+    # 		full_name = cls._get_full_name(func)
+
+    # 		@functools.wraps(func)
+    # 		def wrapper(*args, **kwargs):
+    # 			# Prepare arguments
+    # 			if is_classmethod:
+    # 				patch_args = (args[0],) + args[1:] if args else (owner_class,)
+    # 			else:
+    # 				patch_args = args
+
+    # 			# Prefix
+    # 			for prefix_patch in cls._patches['prefix'].get(full_name, []):
+    # 				prefix_patch(*patch_args, **kwargs)
+
+    # 			# Replace
+    # 			if full_name in cls._patches['replace'] and cls._patches['replace'][full_name]:
+    # 				result = cls._patches['replace'][full_name][-1](*patch_args, **kwargs)
+    # 			else:
+    # 				result = func(*args, **kwargs)
+
+    # 			# Postfix
+    # 			for postfix_patch in cls._patches['postfix'].get(full_name, []):
+    # 				postfix_patch(*patch_args, **kwargs)
+
+    # 			return result
+
+    # 		# Preserve method type
+    # 		if is_classmethod:
+    # 			return classmethod(wrapper)
+    # 		elif is_staticmethod:
+    # 			return staticmethod(wrapper)
+
+    # 		return wrapper
+
+    # 	@classmethod
+    # 	def patch(cls, target: Union[str, Callable], patch_type: str = 'replace') -> Callable:
+    # 		"""
+    # 		Decorator to patch a function.
+
+    # 		Args:
+    # 			target: The function to patch or its full name
+    # 			patch_type: One of 'prefix', 'postfix', or 'replace'
+    # 		"""
+    # 		def decorator(patch_func: Callable) -> Callable:
+    # 			if isinstance(target, str):
+    # 				target_name = target
+    # 			else:
+    # 				target_name = cls._get_full_name(target)
+
+    # 			if patch_type not in cls._patches:
+    # 				raise ValueError(f"Invalid patch type: {patch_type}")
+
+    # 			if target_name not in cls._patches[patch_type]:
+    # 				cls._patches[patch_type][target_name] = []
+
+    # 			cls._patches[patch_type][target_name].append(patch_func)
+
+    # 			# Try to patch any already loaded modules that might contain this target
+    # 			cls.patch_loaded_modules()
+    # 			return patch_func
+
+    # 		return decorator
+
+    # 	@classmethod
+    # 	def _patch_module(cls, module) -> None:
+    # 		"""Apply patches to a single module."""
+    # 		# if module is None or module.__name__ in cls._patched_modules:
+    # 		# 	return
+
+    # 		for attr_name in dir(module):
+    # 			try:
+    # 				attr = getattr(module, attr_name)
+    # 				if inspect.isclass(attr):
+    # 					# Patch class methods
+    # 					for method_name, method in inspect.getmembers(attr, predicate=lambda x: inspect.isfunction(x) or inspect.ismethod(x) or isinstance(x, (classmethod, staticmethod))):
+    # 						full_name = f"{module.__name__}.{attr.__name__}.{method_name}"
+    # 						has_patches = any(
+    # 							full_name in patch_dict
+    # 							for patch_dict in cls._patches.values()
+    # 						)
+    # 						if has_patches:
+    # 							wrapped = cls._wrap_function(method, owner_class=attr)
+    # 							setattr(attr, method_name, wrapped)
+    # 				elif callable(attr):
+    # 					# Patch regular functions
+    # 					full_name = cls._get_full_name(attr)
+    # 					has_patches = any(
+    # 						full_name in patch_dict
+    # 						for patch_dict in cls._patches.values()
+    # 					)
+    # 					if has_patches:
+    # 						wrapped = cls._wrap_function(attr)
+    # 						setattr(module, attr_name, wrapped)
+    # 			except (AttributeError, TypeError):
+    # 				continue
+
+    # 		cls._patched_modules.add(module.__name__)
+
+    @classmethod
+    def patch_loaded_modules(cls) -> None:
+        """
+        Patch all currently loaded modules in sys.modules.
+        This allows patching modules that were imported before the patch was defined.
+        """
+        pass
+
+
 # 		for module_name, module in list(sys.modules.items()):
 # 			cls._patch_module(module)
-	
+
 # 	@classmethod
 # 	def patch_module(cls, module_name: str) -> None:
 # 		"""
@@ -267,17 +274,17 @@ class Croissant:
 # 	def find_spec(self, fullname, path, target=None):
 # 		if path is None:
 # 			path = sys.path
-		
+
 # 		for entry in path:
 # 			if not isinstance(entry, str) or not os.path.isdir(entry):
 # 				continue
-				
+
 # 			filename = os.path.join(entry, fullname.split('.')[-1] + '.py')
 # 			if not os.path.exists(filename):
 # 				continue
-				
+
 # 			return spec_from_file_location(
-# 				fullname, 
+# 				fullname,
 # 				filename,
 # 				loader=PatchLoader(filename)
 # 			)
@@ -286,10 +293,10 @@ class Croissant:
 # class PatchLoader(Loader):
 # 	def __init__(self, filename):
 # 		self.filename = filename
-	
+
 # 	def create_module(self, spec):
 # 		return None  # Use default module creation
-	
+
 # 	def exec_module(self, module):
 # 		with open(self.filename) as f:
 # 			exec(f.read(), module.__dict__)

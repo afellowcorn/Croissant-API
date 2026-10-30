@@ -827,7 +827,9 @@ class Cat:
             )
             return
         try:
-            with open(cat_history_directory, "r", encoding="utf-8", skip=True) as read_file:
+            with open(
+                cat_history_directory, "r", encoding="utf-8", skip=True
+            ) as read_file:
                 history_data = ujson.loads(read_file.read())
 
                 self._history = History(
@@ -1929,7 +1931,7 @@ class Cat:
                 get_save_dir() + "/" + clan + "/faded_cats/" + cat + ".json",
                 "r",
                 encoding="utf-8",
-                skip=True
+                skip=True,
             ) as read_file:
                 cat_info = ujson.loads(read_file.read())
                 # If loading cats is attempted before the Clan is loaded, we would need to use this.
@@ -1946,7 +1948,7 @@ class Cat:
                 + ".json",
                 "r",
                 encoding="utf-8",
-                skip=True
+                skip=True,
             ) as read_file:
                 cat_info = ujson.loads(read_file.read())
         except Exception as e:

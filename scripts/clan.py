@@ -682,10 +682,7 @@ class Clan:
                 + "clan.json"
             )
         with open(
-            filename,
-            "r",
-            encoding="utf-8",
-            skip=True
+            filename, "r", encoding="utf-8", skip=True
         ) as read_file:  # pylint: disable=redefined-outer-name
             clan_data = ujson.loads(read_file.read())
 
@@ -1086,7 +1083,9 @@ class Clan:
 
             # load the current file path, if it exists in save
             elif os.path.exists(current_file_path):
-                with open(current_file_path, "r", encoding="utf-8", skip=True) as save_file:
+                with open(
+                    current_file_path, "r", encoding="utf-8", skip=True
+                ) as save_file:
                     herbs = ujson.load(save_file)
                     clan.herb_supply = HerbSupply(herb_supply=herbs["storage"])
                     clan.herb_supply.collected = herbs["collected"]
