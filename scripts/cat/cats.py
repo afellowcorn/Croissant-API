@@ -15,6 +15,8 @@ from typing import Dict, List, Any, Union, Callable, Optional, TYPE_CHECKING, Li
 import i18n
 import ujson  # type: ignore
 
+from croissant.resources import open
+
 import scripts.game_structure.localization as pronouns
 from scripts.cat import pronouns
 from scripts.cat.conditions.permanent_condition import PermanentCondition
@@ -825,7 +827,7 @@ class Cat:
             )
             return
         try:
-            with open(cat_history_directory, "r", encoding="utf-8") as read_file:
+            with open(cat_history_directory, "r", encoding="utf-8", skip=True) as read_file:
                 history_data = ujson.loads(read_file.read())
 
                 self._history = History(
@@ -1927,6 +1929,7 @@ class Cat:
                 get_save_dir() + "/" + clan + "/faded_cats/" + cat + ".json",
                 "r",
                 encoding="utf-8",
+                skip=True
             ) as read_file:
                 cat_info = ujson.loads(read_file.read())
                 # If loading cats is attempted before the Clan is loaded, we would need to use this.
@@ -1943,6 +1946,7 @@ class Cat:
                 + ".json",
                 "r",
                 encoding="utf-8",
+                skip=True
             ) as read_file:
                 cat_info = ujson.loads(read_file.read())
         except Exception as e:

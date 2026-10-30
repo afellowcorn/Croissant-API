@@ -9,6 +9,8 @@ import random
 import i18n
 import ujson
 
+from croissant.resources import open
+
 from scripts.game_structure import constants
 from scripts.cat.enums import CatRank, CatGroup, CatAge, CatSocial
 from scripts.game_structure.localization import load_lang_resource
@@ -144,7 +146,7 @@ class Name:
 
         if os.path.exists(save_dir + "/prefixlist.txt"):
             with open(
-                str(save_dir + "/prefixlist.txt"), "r", encoding="utf-8"
+                str(save_dir + "/prefixlist.txt"), "r", encoding="utf-8", skip=True
             ) as read_file:
                 name_list = read_file.read()
                 if_names = len(name_list)
@@ -160,7 +162,7 @@ class Name:
 
         if os.path.exists(save_dir + "/suffixlist.txt"):
             with open(
-                str(save_dir + "/suffixlist.txt"), "r", encoding="utf-8"
+                str(save_dir + "/suffixlist.txt"), "r", encoding="utf-8", skip=True
             ) as read_file:
                 name_list = read_file.read()
                 if_names = len(name_list)
@@ -176,7 +178,7 @@ class Name:
 
         if os.path.exists(save_dir + "/specialsuffixes.txt"):
             with open(
-                str(save_dir + "/specialsuffixes.txt", "r"), encoding="utf-8"
+                str(save_dir + "/specialsuffixes.txt", "r"), encoding="utf-8", skip=True
             ) as read_file:
                 name_list = read_file.read()
                 if_names = len(name_list)

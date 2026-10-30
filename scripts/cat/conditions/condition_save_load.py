@@ -3,6 +3,8 @@ import os
 
 import ujson
 
+from croissant.resources import open
+
 from scripts.cat.cats import Cat
 from scripts.cat.conditions.permanent_condition import PermanentCondition
 from scripts.cat.conditions.temporary_condition import TemporaryCondition
@@ -59,7 +61,7 @@ def load_conditions(cat: Cat, version_info: dict):
         return
 
     try:
-        with open(condition_cat_directory, "r", encoding="utf-8") as read_file:
+        with open(condition_cat_directory, "r", encoding="utf-8", skip=True) as read_file:
             condition_data = ujson.loads(read_file.read())
 
             if version_info["version_name"] <= 5:

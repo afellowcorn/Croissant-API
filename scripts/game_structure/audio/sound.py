@@ -6,6 +6,8 @@ import pygame
 import pygame_gui
 import ujson
 
+from croissant.resources import open
+
 from scripts.game_input import INPUT_ACTION_RELEASED, INPUT_ACTION_PRESSED, Action
 from scripts.game_structure.game.settings import game_setting_get, game_setting_set
 from scripts.ui.elements.cat_button import CatButton

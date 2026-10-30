@@ -3,6 +3,8 @@ import tomllib
 from pygame import Cursor, image, SYSTEM_CURSOR_ARROW
 import ujson
 
+from croissant.resources import open
+
 # these scripts don't import any clangen scripts into themselves, so it's okay for them to be imported here
 from scripts.clan_resources.supply import Supply
 

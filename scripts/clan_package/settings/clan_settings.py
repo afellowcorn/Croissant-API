@@ -3,6 +3,8 @@ from pathlib import Path
 
 import ujson
 
+from croissant.resources import open
+
 from scripts.game_structure.game.save_load import safe_save
 from scripts.game_structure.game.switches import Switch, switch_get_value
 from scripts.housekeeping.datadir import get_save_dir
@@ -24,6 +26,7 @@ def load_clan_settings():
             + f"/{switch_get_value(Switch.clan_list)[0]}/clan_settings.json",
             "r",
             encoding="utf-8",
+            skip=True
         ) as write_file:
             _load_settings = ujson.loads(write_file.read())
 

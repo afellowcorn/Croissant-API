@@ -5,6 +5,8 @@ from typing import Optional
 import pygame
 import ujson
 
+from croissant.resources import open
+
 from scripts.game_structure import constants, game
 from scripts.game_structure.audio.timer import AudioTimer
 from scripts.game_structure.game.settings import game_setting_get, game_setting_set

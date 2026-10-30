@@ -187,5 +187,5 @@ version.ini
 # Croissant
 
 croissant/mod_list.json
-croissant/runtime_resources
+croissant/resources
 mods/**

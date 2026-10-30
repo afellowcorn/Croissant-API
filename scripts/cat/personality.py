@@ -4,6 +4,8 @@ from random import randint, choice, choices
 
 import ujson
 
+from croissant.resources import open
+
 from scripts.game_structure import constants
 
 

@@ -4,6 +4,8 @@ from typing import Dict, Union, List, Literal, Optional
 
 import ujson
 
+from croissant.resources import open
+
 _poi_names = set()
 _poi_tags = set()
 

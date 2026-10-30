@@ -17,6 +17,8 @@ if TYPE_CHECKING:
 from math import floor
 from typing import Optional, Tuple
 
+from croissant.resources import open
+
 import pygame
 import pygame_gui
 from scripts.game_structure.ui_manager import UIManager
@@ -282,7 +284,7 @@ def load_manager(res: Tuple[int, int], screen_offset: Tuple[int, int], scale: fl
 
     try:
         with open(
-            get_save_dir() + "/settings.json", "r", encoding="utf-8"
+            get_save_dir() + "/settings.json", "r", encoding="utf-8", skip=True
         ) as read_file:
             settings_data = ujson.loads(read_file.read())
     except FileNotFoundError:
@@ -300,7 +302,7 @@ def load_manager(res: Tuple[int, int], screen_offset: Tuple[int, int], scale: fl
     if settings_data["language"] not in languages:
         settings_data["language"] = "en"
         with open(
-            get_save_dir() + "/settings.json", "w", encoding="utf-8"
+            get_save_dir() + "/settings.json", "w", encoding="utf-8", skip=True
         ) as write_file:
             new_settings = ujson.dumps(settings_data, ensure_ascii=False, indent=4)
             write_file.write(new_settings)

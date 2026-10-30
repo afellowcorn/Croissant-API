@@ -10,6 +10,8 @@ import pygame
 import pygame_gui
 import ujson
 
+from croissant.resources import open
+
 from scripts.game_structure.discord_rpc import _DiscordRPC
 from scripts.game_structure.game.settings import (
     game_settings_save,

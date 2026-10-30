@@ -3,6 +3,8 @@ from typing import Dict, Tuple, Optional, Union, List
 
 import ujson
 
+from croissant.resources import open
+
 from scripts.cat.cats import Cat, BACKSTORIES
 from scripts.cat.enums import CatAge, CatGroup
 from scripts.cat.factories.base_factory import BaseCatFactory

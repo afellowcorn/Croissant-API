@@ -16,6 +16,8 @@ from typing import Literal, Optional
 import i18n
 import ujson
 
+from croissant.resources import open
+
 from scripts.cat.cats import Cat, BACKSTORIES
 from scripts.cat.enums import CatRank, CatGroup, CatSocial, CatCompatibility, CatThought
 from scripts.cat.factories.new_cat_factory import NewCatFactory
@@ -683,6 +685,7 @@ class Clan:
             filename,
             "r",
             encoding="utf-8",
+            skip=True
         ) as read_file:  # pylint: disable=redefined-outer-name
             clan_data = ujson.loads(read_file.read())
 
@@ -889,7 +892,7 @@ class Clan:
         file_path = get_save_dir() + f"/{game.clan.save_id}/pregnancy.json"
         if os.path.exists(file_path):
             with open(
-                file_path, "r", encoding="utf-8"
+                file_path, "r", encoding="utf-8", skip=True
             ) as read_file:  # pylint: disable=redefined-outer-name
                 clan.pregnancy_data = ujson.load(read_file)
         else:
@@ -1076,14 +1079,14 @@ class Clan:
         try:
             # load the old file path and convert the save data into current format
             if os.path.exists(old_file_path):
-                with open(old_file_path, "r", encoding="utf-8") as save_file:
+                with open(old_file_path, "r", encoding="utf-8", skip=True) as save_file:
                     herbs = ujson.load(save_file)
                     clan.herb_supply = HerbSupply()
                     clan.herb_supply.convert_old_save(herbs)
 
             # load the current file path, if it exists in save
             elif os.path.exists(current_file_path):
-                with open(current_file_path, "r", encoding="utf-8") as save_file:
+                with open(current_file_path, "r", encoding="utf-8", skip=True) as save_file:
                     herbs = ujson.load(save_file)
                     clan.herb_supply = HerbSupply(herb_supply=herbs["storage"])
                     clan.herb_supply.collected = herbs["collected"]
@@ -1135,14 +1138,14 @@ class Clan:
         try:
             if os.path.exists(file_path):
                 with open(
-                    file_path, "r", encoding="utf-8"
+                    file_path, "r", encoding="utf-8", skip=True
                 ) as read_file:  # pylint: disable=redefined-outer-name
                     pile = ujson.load(read_file)
                     clan.freshkill_pile = FreshkillPile(pile)
 
                 file_path = get_save_dir() + f"/{game.clan.save_id}/nutrition_info.json"
                 if os.path.exists(file_path) and clan.freshkill_pile:
-                    with open(file_path, "r", encoding="utf-8") as read_file:
+                    with open(file_path, "r", encoding="utf-8", skip=True) as read_file:
                         nutritions = ujson.load(read_file)
                         for k, nutr in nutritions.items():
                             nutrition = Nutrition()

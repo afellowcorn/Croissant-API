@@ -1,6 +1,8 @@
 import ujson
 import os
 
+from croissant.resources import open
+
 _resource_directory = "resources/dicts/conditions/"
 
 with open(

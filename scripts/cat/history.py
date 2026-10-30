@@ -4,6 +4,8 @@ import i18n
 import os
 import ujson
 
+from croissant.resources import open
+
 from scripts.cat.conditions.temporary_condition import TemporaryCondition
 from scripts.cat.enums import CatGroup
 from scripts.cat.skills import SkillPath

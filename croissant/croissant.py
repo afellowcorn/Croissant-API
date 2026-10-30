@@ -43,10 +43,6 @@ class Croissant:
 			if folder in cls.mod_list.keys():
 				enabled = cls.mod_list[folder]
 
-			# temp
-			if folder == "pelt_test":
-				enabled = True
-
 			try:
 				with open(f"mods/{folder}/mod_info.json", 'r') as read_file:
 					mod_info = ujson.loads(read_file.read())
@@ -58,12 +54,16 @@ class Croissant:
 			except:
 				print(f"\033[1m[Croissant]\033[0m ERROR: {folder} does not have a mod_info.json")
 
-		for mod in cls.enabled_mods:
-			if cls.mod_list[mod].enabled:
-				cls.mod_list[mod].call_ready()
+		cls.ready_mods()
 
 		print(f"\033[1m[Croissant]\033[0m Mod loading complete")
 		cls._save_mod_list()
+
+	@classmethod
+	def ready_mods(cls) -> None:
+		"""Runs enabled mods' main.py."""
+		for mod in cls.enabled_mods:
+			cls.mod_list[mod].call_ready()
 
 	@classmethod
 	def load_resources(cls, mod_id) -> None:
@@ -94,9 +94,9 @@ class Croissant:
 
 	@classmethod
 	def _update_mod_list(cls, mod, enable=True) -> None:
-		if enable:
+		if enable and mod not in cls.enabled_mods:
 			cls.enabled_mods.append(mod)
-		else:
+		elif not enable and mod in cls.enabled_mods:
 			cls.enabled_mods.remove(mod)
 		cls.mod_list[mod].enabled = enable
 

@@ -4,6 +4,8 @@ import pygame
 import pygame_gui
 import ujson
 
+from croissant.resources import open
+
 from scripts.cat.factories.test_cat_factory import TestCatFactory
 from scripts.cat.pelts import Pelt
 from scripts.cat.sprites.load_sprites import sprites
@@ -128,7 +130,7 @@ class TortiePatchToolWindow(ComboToolWindow):
             "\/", "/"
         )  # ujson tries to escape "/", but doesn't end up doing a good job.
 
-        with open(path, "w") as write_file:
+        with open(path, "w", skip=True) as write_file:
             write_file.write(dict_text)
 
         # update sprites so this can appear on our existing combo preview

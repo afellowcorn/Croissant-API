@@ -4,6 +4,8 @@
 import i18n
 import ujson
 
+from croissant.resources import open
+
 from scripts.cat_relations.enums import RelType
 from scripts.events_module.event_filters import (
     event_for_reputation,

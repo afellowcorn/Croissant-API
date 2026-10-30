@@ -4,6 +4,8 @@ from typing import Dict, Optional
 import i18n
 import ujson
 
+from croissant.resources import open
+
 lang_config: Optional[Dict] = None
 _lang_config_directory = os.path.join("resources", "lang", "{locale}", "config.json")
 _directory_changed: bool = False

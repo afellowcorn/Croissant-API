@@ -2,6 +2,7 @@ import i18n
 import pygame
 import pygame_gui
 
+from copy import deepcopy
 from scripts.game_structure import game, image_cache
 from scripts.game_structure.game.settings import (
 	game_settings_save,
@@ -31,6 +32,11 @@ class ModsScreen(Screens):
 
 		if not CR.mod_list:
 			CR.load_mods()
+		self.previous_settings = {
+			"mod_list": {},
+			"enabled_mods": []
+		}
+		self.changes = False
 
 		self.back_button = None
 		self.save_button = None
@@ -62,8 +68,6 @@ class ModsScreen(Screens):
 		self.info_frame = None
 		self.info_container = None
 		self.info_text = {}
-
-		self.set_self_values()
 
 	def handle_event(self, event):
 		if event.type == pygame_gui.UI_BUTTON_START_PRESS:
@@ -101,6 +105,7 @@ class ModsScreen(Screens):
 						mod = self.enabled_mods.pop(index)
 						self.enabled_mods.insert(index-1, mod)
 						self.create_mod_display()
+						self.changes = True
 
 			# ORDER DOWN
 			elif event.ui_element in self.down_order_buttons.values():
@@ -110,6 +115,7 @@ class ModsScreen(Screens):
 						mod = self.enabled_mods.pop(index)
 						self.enabled_mods.insert(index+1, mod)
 						self.create_mod_display()
+						self.changes = True
 
 			# ENABLE/DISABLE
 			elif event.ui_element == self.enable_button:
@@ -118,11 +124,16 @@ class ModsScreen(Screens):
 				self.change_enabled_state()
 				self.create_mod_display()
 				self.create_info_display()
+				self.changes = True
 				return
 
 	def screen_switches(self):
 		super().screen_switches()
-		self.settings_changed = False
+
+		self.set_bg("default", "mainmenu_bg")
+
+		self.set_previous_settings()
+		self.set_self_values()
 
 		self.back_button = UISurfaceImageButton(
 			ui_scale(pygame.Rect((25, 25), (105, 30))),
@@ -160,15 +171,24 @@ class ModsScreen(Screens):
 		self.create_mod_display()
 
 	def exit_screen(self):
+		if self.changes:
+			for attr in CR.mod_list:
+				CR._update_mod_list(attr, self.previous_settings["mod_list"][attr].enabled)
+			if CR.enabled_mods != self.previous_settings["enabled_mods"]:
+				setattr(CR, "enabled_mods", self.previous_settings["enabled_mods"].copy())
+		self.previous_settings["mod_list"].clear()
+		self.previous_settings["enabled_mods"].clear()
+
 		self.back_button.kill()
 		self.save_button.kill()
 		self.list_frame.kill()
 		self.disabled_list_frame.kill()
-		
+		self.enabled_mods.clear()
+		self.disabled_mods.clear()
 		self.kill_mod_buttons()
 
-		self.enable_button.kill()
 		if self.info_frame:
+			self.enable_button.kill()
 			self.info_frame.kill()
 			if self.info_text:
 				for ele in self.info_text.values():
@@ -182,8 +202,12 @@ class ModsScreen(Screens):
 	def on_use(self):
 		self.show_bg(theme=self.toggled_theme)
 
+	def set_previous_settings(self):
+		self.previous_settings["mod_list"] = deepcopy(CR.mod_list)
+		self.previous_settings["enabled_mods"] = CR.enabled_mods.copy()
+
 	def set_self_values(self):
-		self.enabled_mods = CR.enabled_mods
+		self.enabled_mods = CR.enabled_mods.copy()
 		self.disabled_mods = [x.mod_id for x in CR.mod_list.values() if not x.enabled]
 
 	def create_mod_display(self):
@@ -404,3 +428,6 @@ class ModsScreen(Screens):
 
 	def save_changes(self):
 		CR._save_mod_list()
+		CR.ready_mods()
+		self.set_previous_settings()
+		self.changes = False

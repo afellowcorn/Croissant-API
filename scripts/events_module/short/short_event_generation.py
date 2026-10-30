@@ -4,6 +4,8 @@ from typing import Optional, Tuple
 import i18n
 import ujson
 
+from croissant.resources import open
+
 from scripts.cat.cats import Cat
 from scripts.cat.enums import CatRank
 from scripts.cat.skills import SkillPath
